@@ -1,0 +1,36 @@
+openapi: 3.0.1
+info:
+  version: 0.0.0
+  title: IO Fast Login Function API
+  x-logo:
+    url: https://io.italia.it/assets/img/io-logo-blue.svg
+  description: |
+    Documentation of the IO Fast Login Function API here.
+servers: 
+  - url: https://io-p-fast-login-fn.azurewebsites.net/api/v1
+security:
+  - ApiKeyAuth: []
+paths:
+  /info:
+    get:
+      operationId: info
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationInfo'
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server error
+components:
+  schemas:
+    ApplicationInfo:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
