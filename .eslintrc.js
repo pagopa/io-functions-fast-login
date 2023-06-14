@@ -23,6 +23,6 @@ module.exports = {
         "@pagopa/eslint-config/strong",
     ],
     "rules": {
-
+        "@typescript-eslint/consistent-type-definitions": ["error", "type"]
     }
 }
