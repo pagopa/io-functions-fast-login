@@ -6,15 +6,13 @@ import {
   HealthCheck,
   toHealthProblems
 } from "@pagopa/io-functions-commons/dist/src/utils/healthcheck";
-import { Database } from "@azure/cosmos";
+import { CosmosDBDependency } from "./dependency";
 
 export type AzureCosmosProblemSource = "AzureCosmosDB";
 
 export const makeAzureCosmosDbHealthCheck = ({
   db
-}: {
-  readonly db: Database;
-}): HealthCheck<AzureCosmosProblemSource> =>
+}: CosmosDBDependency): HealthCheck<AzureCosmosProblemSource> =>
   pipe(
     TE.tryCatch(
       () => db.client.getDatabaseAccount(),

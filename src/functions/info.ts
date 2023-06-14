@@ -10,8 +10,8 @@ import {
   AzureCosmosProblemSource,
   makeAzureCosmosDbHealthCheck
 } from "../utils/cosmos/health-check";
-import { DatabaseDependency } from "../main";
 import { ApplicationInfo } from "../generated/definitions/internal/ApplicationInfo";
+import { CosmosDBDependency } from "../utils/cosmos/dependency";
 type ProblemSource = AzureCosmosProblemSource;
 const applicativeValidation = RTE.getApplicativeReaderTaskValidation(
   Task.ApplicativePar,
@@ -21,7 +21,7 @@ const applicativeValidation = RTE.getApplicativeReaderTaskValidation(
 export const makeInfoHandler: H.Handler<
   H.HttpRequest,
   H.HttpResponse<ApplicationInfo, 200>,
-  DatabaseDependency
+  CosmosDBDependency
 > = H.of((_: H.HttpRequest) =>
   pipe(
     // TODO: Add all the function health checks
