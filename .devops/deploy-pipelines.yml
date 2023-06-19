@@ -63,6 +63,7 @@ stages:
               gitReference: main
           - template: templates/node-github-release/template.yaml@pagopaCommons
             parameters:
+              release_branch: main
               semver: '${{ parameters.RELEASE_SEMVER }}'
               gitEmail: $(GIT_EMAIL)
               gitUsername: $(GIT_USERNAME)
