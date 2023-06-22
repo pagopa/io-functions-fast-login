@@ -172,12 +172,18 @@ components:
         - OIDC
     LollipopAssertionRef:
       oneOf:
-        - type: string
-          pattern: ^(sha256-[A-Za-z0-9-_=]{1,44})$
-        - type: string
-          pattern: ^(sha384-[A-Za-z0-9-_=]{1,66})$
-        - type: string
-          pattern: ^(sha512-[A-Za-z0-9-_=]{1,88})$
+        - $ref: '#/components/schemas/AssertionRefSha256'
+        - $ref: '#/components/schemas/AssertionRefSha384'
+        - $ref: '#/components/schemas/AssertionRefSha512'
+    AssertionRefSha256:
+      type: string
+      pattern: ^(sha256-[A-Za-z0-9-_=]{1,44})$
+    AssertionRefSha384:
+      type: string
+      pattern: ^(sha384-[A-Za-z0-9-_=]{1,66})$
+    AssertionRefSha512:
+      type: string
+      pattern: ^(sha512-[A-Za-z0-9-_=]{1,88})$
     LollipopUserId:
       type: string
       description: User's fiscal code.

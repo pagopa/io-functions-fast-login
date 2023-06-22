@@ -122,7 +122,16 @@ components:
     AssertionType:
       $ref: "../node_modules/@pagopa/io-functions-commons/openapi/lollipop_definitions.yaml#/components/schemas/AssertionType"
     LollipopAssertionRef:
-      $ref: "../node_modules/@pagopa/io-functions-commons/openapi/lollipop_definitions.yaml#/components/schemas/AssertionRef"
+      oneOf:
+        - $ref: "#/components/schemas/AssertionRefSha256"
+        - $ref: "#/components/schemas/AssertionRefSha384"
+        - $ref: "#/components/schemas/AssertionRefSha512"
+    AssertionRefSha256:
+      $ref: "../node_modules/@pagopa/io-functions-commons/openapi/lollipop_definitions.yaml#/components/schemas/AssertionRefSha256"
+    AssertionRefSha384:
+      $ref: "../node_modules/@pagopa/io-functions-commons/openapi/lollipop_definitions.yaml#/components/schemas/AssertionRefSha384"
+    AssertionRefSha512:
+      $ref: "../node_modules/@pagopa/io-functions-commons/openapi/lollipop_definitions.yaml#/components/schemas/AssertionRefSha512"
     LollipopUserId:
       $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/FiscalCode"
     LollipopPublicKey:
