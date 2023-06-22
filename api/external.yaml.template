@@ -101,11 +101,11 @@ components:
     FastLoginResponse:
       type: object
       properties:
-        SAMLResponse:
+        saml_response:
           type: string
           minLength: 1
       required:
-        - SAMLResponse
+        - saml_response
     ProblemJson:
       $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/ProblemJson"
     LollipopMethod:
