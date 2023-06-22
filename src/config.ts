@@ -12,19 +12,32 @@ import { pipe } from "fp-ts/lib/function";
 
 import * as reporters from "@pagopa/ts-commons/lib/reporters";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { UrlFromString } from "@pagopa/ts-commons/lib/url";
 
 // ----------------------------
 // Global app configuration
 // ----------------------------
+const GetAssertionConfig = t.type(
+  {
+    LOLLIPOP_GET_ASSERTION_API_KEY: NonEmptyString,
+    LOLLIPOP_GET_ASSERTION_BASE_URL: UrlFromString
+  },
+  "GetAssertionConfig"
+);
+type GetAssertionConfig = t.Type<typeof GetAssertionConfig>;
+
 export type IConfig = t.TypeOf<typeof IConfig>;
-export const IConfig = t.interface({
-  APPINSIGHTS_INSTRUMENTATIONKEY: NonEmptyString,
+export const IConfig = t.intersection([
+  t.interface({
+    APPINSIGHTS_INSTRUMENTATIONKEY: NonEmptyString,
 
-  COSMOS_CONNECTION_STRING: NonEmptyString,
-  COSMOS_DB_NAME: NonEmptyString,
+    COSMOS_CONNECTION_STRING: NonEmptyString,
+    COSMOS_DB_NAME: NonEmptyString,
 
-  isProduction: t.boolean
-});
+    isProduction: t.boolean
+  }),
+  GetAssertionConfig
+]);
 
 export const envConfig = {
   ...process.env,

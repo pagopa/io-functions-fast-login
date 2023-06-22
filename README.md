@@ -16,8 +16,10 @@ io-functions-fast-login
 |-- src
 |   |-- functions
 |   |-- generated
+|   |-- middlewares
 |   |-- utils
 |   |   |-- cosmos
+|   |   |-- lollipop
 |   |-- config.ts
 |   |-- main.ts
 |-- package.json
@@ -51,7 +53,17 @@ function.json
 }
 ```
 
+## ENV variables
 
+The following table contains the required ENV variables that the applicative require
+
+| Variable name                  | Description                                   | type   |
+|--------------------------------|-----------------------------------------------|--------|
+| APPINSIGHTS_INSTRUMENTATIONKEY  | The Application Insights instrumentation key | string |
+| COSMOS_CONNECTION_STRING        | citizen-auth Cosmos Connection String        | string |
+| COSMOS_DB_NAME                  | citizen-auth Cosmos DB name                  | string |
+|LOLLIPOP_GET_ASSERTION_API_KEY   | API Key to authorize `getAssertion`          | string |
+| LOLLIPOP_GET_ASSERTION_BASE_URL | APU Url for `getAssertion` operation         | string |
 ## Local Execution
 
 To execute locally the function copy the configuration from the `env.example` file with:
