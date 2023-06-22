@@ -1,0 +1,145 @@
+openapi: 3.0.1
+info:
+  version: 0.0.0
+  title: IO Fast Login Function API
+  x-logo:
+    url: https://io.italia.it/assets/img/io-logo-blue.svg
+  description: |
+    Documentation of the IO Fast Login Function API here.
+servers: 
+  - url: https://io-p-weu-fast-login-fn.azurewebsites.net/api/v1
+security:
+  - ApiKeyAuth: []
+paths:
+  /fast-login:
+    post:
+      operationId: fastLogin
+      parameters:
+        - name: x-pagopa-lollipop-original-method
+          in: header
+          description: The method of the endpoint called by IO app
+          required: true
+          schema:
+            $ref: "#/components/schemas/LollipopMethod"
+        - name: x-pagopa-lollipop-original-url
+          in: header
+          description: The url of the endpoint called by IO app
+          required: true
+          schema:
+            $ref: "#/components/schemas/LollipopOriginalURL"
+        - name: x-pagopa-lollipop-auth-jwt
+          in: header
+          description: Auth token to retrieve the SPID/CIE User identity from IO
+          required: true
+          schema:
+            $ref: "#/components/schemas/LollipopJWTAuthorization"
+        - name: x-pagopa-lollipop-assertion-ref
+          in: header
+          description: The id of the assertion to retrieve
+          required: true
+          schema:
+            $ref: "#/components/schemas/LollipopAssertionRef"
+        - name: x-pagopa-lollipop-assertion-type
+          in: header
+          description: The assertion type (SAML / OIDC)
+          required: true
+          schema:
+            $ref: "#/components/schemas/AssertionType"
+        - name: x-pagopa-lollipop-user-id
+          in: header
+          description: User's fiscal code.
+          required: true
+          schema:
+            $ref: "#/components/schemas/LollipopUserId"
+        - name: x-pagopa-lollipop-public-key
+          in: header
+          description: User's public key
+          required: true
+          schema:
+            $ref: "#/components/schemas/LollipopPublicKey"
+        - name: signature-input
+          in: header
+          description: The signature input, needed to verify the `signature` header
+          required: true
+          schema:
+            $ref: "#/components/schemas/LollipopSignatureInput"
+        - name: signature
+          in: header
+          description: The signature of the HTTP request, signed by the client with its private key.
+          required: true
+          schema:
+            $ref: "#/components/schemas/LollipopSignature"
+        - name: x-pagopa-fast-login-refresh-type
+          in: header
+          description: The source of the fast-login request
+          required: true
+          schema:
+            $ref: "#/components/schemas/FastLoginRequestType"
+      responses:
+        '200':
+          description: "Success response"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FastLoginResponse"
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemJson'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Functions-Key
+  schemas:
+    FastLoginResponse:
+      type: object
+      properties:
+        SAMLResponse:
+          type: string
+          minLength: 1
+      required:
+        - SAMLResponse
+    ProblemJson:
+      $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/ProblemJson"
+    LollipopMethod:
+      type: string
+      enum:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+    LollipopOriginalURL:
+      type: string
+      pattern: "^https:\/\/"
+    AssertionType:
+      $ref: "../node_modules/@pagopa/io-functions-commons/openapi/lollipop_definitions.yaml#/components/schemas/AssertionType"
+    LollipopAssertionRef:
+      $ref: "../node_modules/@pagopa/io-functions-commons/openapi/lollipop_definitions.yaml#/components/schemas/AssertionRef"
+    LollipopUserId:
+      $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/FiscalCode"
+    LollipopPublicKey:
+      type: string
+      minLength: 1
+      description: represents a Base64url encode of a JWK Public Key
+    LollipopJWTAuthorization:
+      type: string
+      minLength: 1
+    LollipopSignatureInput:
+      type: string
+      pattern: "^(((sig[0-9]+)=[^,]*?)(, ?)?)+$"
+    LollipopSignature:
+      type: string
+      pattern: "^((sig[0-9]+)=:[A-Za-z0-9+/=]*:(, ?)?)+$"
+    FastLoginRequestType:
+      type: string
+      enum:
+        - BIOMETRIC
+        - SILENT
