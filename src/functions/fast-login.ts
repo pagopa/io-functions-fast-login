@@ -5,11 +5,12 @@ import { flow, pipe } from "fp-ts/lib/function";
 import { sequenceS } from "fp-ts/lib/Apply";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as TE from "fp-ts/TaskEither";
+import { JwkPublicKeyFromToken } from "@pagopa/ts-commons/lib/jwk";
 import {
   RequiredHeaderMiddleware,
   RequiredHeadersMiddleware
 } from "../middlewares/request";
-import { FastLoginSAMLResponse } from "../generated/definitions/internal/FastLoginSAML";
+import { FastLoginSAML } from "../generated/definitions/internal/FastLoginSAML";
 import { LollipopHeaders } from "../types/lollipop";
 import { FnLollipopClientDependency } from "../utils/lollipop/dependency";
 import { isAssertionSaml } from "../utils/lollipop/assertion";
@@ -40,7 +41,7 @@ const RetrieveSAMLResponse: (
 ) => RTE.ReaderTaskEither<
   FnLollipopClientDependency,
   H.HttpError,
-  FastLoginSAMLResponse
+  FastLoginSAML
 > = (lollipopHeaders: LollipopHeaders) => ({ fnLollipopClient }) =>
   pipe(
     TE.tryCatch(
@@ -66,12 +67,12 @@ const RetrieveSAMLResponse: (
       isAssertionSaml(lollipopHeaders["x-pagopa-lollipop-assertion-type"]),
       () => new H.HttpError("OIDC Claims not supported yet.")
     ),
-    TE.map(assertion => ({ SAMLResponse: assertion.response_xml }))
+    TE.map(assertion => ({ saml_response: assertion.response_xml }))
   );
 
 export const makeFastLoginHandler: H.Handler<
   H.HttpRequest,
-  H.HttpResponse<FastLoginSAMLResponse, 200>,
+  H.HttpResponse<FastLoginSAML, 200>,
   FnLollipopClientDependency
 > = H.of((req: H.HttpRequest) =>
   pipe(
@@ -79,7 +80,7 @@ export const makeFastLoginHandler: H.Handler<
     sequenceS(RTE.ApplyPar)({
       lollipopHeaders: RequiredHeadersMiddleware(LollipopHeaders),
       publicKey: RequiredHeaderMiddleware(
-        NonEmptyString,
+        JwkPublicKeyFromToken,
         PUBLIC_KEY_HEADER_NAME
       )
     }),

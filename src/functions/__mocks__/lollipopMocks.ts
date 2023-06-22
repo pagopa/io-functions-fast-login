@@ -1,13 +1,24 @@
-import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
+import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { AssertionRef } from "../../generated/definitions/fn-lollipop/AssertionRef";
 import { LollipopSignature } from "../../generated/definitions/internal/LollipopSignature";
 import { LollipopSignatureInput } from "../../generated/definitions/internal/LollipopSignatureInput";
+import { JwkPublicKey } from "@pagopa/ts-commons/lib/jwk";
+import * as jose from "jose";
 
 export const anAssertionRef = "sha256-an-assertion-ref" as AssertionRef;
 export const aFiscalCode = "AAAAAA00A00A000A" as FiscalCode;
 
 export const aLollipopSignature = "sig1=:lTuoRytp53GuUMOB4Rz1z97Y96gfSeEOm/xVpO39d3HR6lLAy4KYiGq+1hZ7nmRFBt2bASWEpen7ov5O4wU3kQ==:" as LollipopSignature;
 export const aLollipopSignatureInput = `sig1=("content-digest" "x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url");created=1678293988;nonce="aNonce";alg="ecdsa-p256-sha256";keyid="sha256-a7qE0Y0DyqeOFFREIQSLKfu5WlbckdxVXKFasfcI-Dg"` as LollipopSignatureInput;
+
+export const aValidJwk: JwkPublicKey = {
+  kty: "EC",
+  crv: "P-256",
+  x: "SVqB4JcUD6lsfvqMr-OKUNUphdNn64Eay60978ZlL74",
+  y: "lf0u0pMj4lGAzZix5u4Cm5CMQIgMNpkwy163wtKYVKI"
+};
+export const toEncodedJwk = (jwk: JwkPublicKey) =>
+  jose.base64url.encode(JSON.stringify(jwk)) as NonEmptyString;
 
 export const aSAMLResponse = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol"

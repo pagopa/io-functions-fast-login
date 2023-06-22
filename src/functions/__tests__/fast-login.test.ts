@@ -11,7 +11,9 @@ import {
   aLollipopSignature,
   aLollipopSignatureInput,
   aSAMLResponse,
-  anAssertionRef
+  aValidJwk,
+  anAssertionRef,
+  toEncodedJwk
 } from "../__mocks__/lollipopMocks";
 
 const getAssertionMock = jest.fn(async () =>
@@ -36,7 +38,7 @@ describe("Fast Login handler", () => {
         ["x-pagopa-lollipop-auth-jwt"]: "aFakeJwtToken",
         ["x-pagopa-lollipop-original-method"]: LollipopMethodEnum.POST,
         ["x-pagopa-lollipop-original-url"]: "https://api.test.it/fast-login",
-        ["x-pagopa-lollipop-public-key"]: "aFakeLollipopPubkey",
+        ["x-pagopa-lollipop-public-key"]: toEncodedJwk(aValidJwk),
         ["x-pagopa-lollipop-user-id"]: aFiscalCode,
 
         ["signature"]: aLollipopSignature,
@@ -53,7 +55,7 @@ describe("Fast Login handler", () => {
     if (E.isRight(result)) {
       expect(result.right).toEqual(
         expect.objectContaining({
-          body: { SAMLResponse: aSAMLResponse },
+          body: { saml_response: aSAMLResponse },
           statusCode: 200
         })
       );
