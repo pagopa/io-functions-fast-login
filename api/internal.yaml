@@ -85,6 +85,12 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/LollipopSignature'
+        - name: x-pagopa-fast-login-refresh-type
+          in: header
+          description: The source of the fast-login request
+          required: true
+          schema:
+            $ref: '#/components/schemas/FastLoginRequestType'
       responses:
         '200':
           description: Success response
@@ -187,16 +193,18 @@ components:
         - OIDC
     LollipopAssertionRef:
       oneOf:
-        - $ref: '#/components/schemas/AssertionRefSha256'
-        - $ref: '#/components/schemas/AssertionRefSha384'
-        - $ref: '#/components/schemas/AssertionRefSha512'
+        - type: string
+          pattern: ^(sha256-[A-Za-z0-9-_=]{1,44})$
+        - type: string
+          pattern: ^(sha384-[A-Za-z0-9-_=]{1,66})$
+        - type: string
+          pattern: ^(sha512-[A-Za-z0-9-_=]{1,88})$
     LollipopUserId:
       type: string
-      maxLength: 16
-      minLength: 16
-      description: The user's fiscal code, all upper case.
-      pattern: >-
-        ^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$
+      description: User's fiscal code.
+      format: FiscalCode
+      x-import: '@pagopa/ts-commons/lib/strings'
+      example: SPNDNL80R13C555X
     LollipopPublicKey:
       type: string
       minLength: 1
@@ -204,27 +212,14 @@ components:
     LollipopJWTAuthorization:
       type: string
       minLength: 1
-    LollipopContentType:
-      type: string
-      enum:
-        - application/json
-        - application/octet-stream
-    LollipopContentDigest:
-      type: string
-      pattern: >-
-        ^(sha-256=:[A-Za-z0-9+/=]{44}:|sha-384=:[A-Za-z0-9+/=]{66}:|sha-512=:[A-Za-z0-9+/=]{88}:)$
     LollipopSignatureInput:
       type: string
       pattern: ^(((sig[0-9]+)=[^,]*?)(, ?)?)+$
     LollipopSignature:
       type: string
       pattern: ^((sig[0-9]+)=:[A-Za-z0-9+/=]*:(, ?)?)+$
-    AssertionRefSha256:
+    FastLoginRequestType:
       type: string
-      pattern: ^(sha256-[A-Za-z0-9-_=]{1,44})$
-    AssertionRefSha384:
-      type: string
-      pattern: ^(sha384-[A-Za-z0-9-_=]{1,66})$
-    AssertionRefSha512:
-      type: string
-      pattern: ^(sha512-[A-Za-z0-9-_=]{1,88})$
+      enum:
+        - BIOMETRIC
+        - SILENT
