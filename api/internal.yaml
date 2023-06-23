@@ -14,7 +14,6 @@ paths:
   /info:
     get:
       operationId: info
-      security: []
       responses:
         '200':
           description: Success

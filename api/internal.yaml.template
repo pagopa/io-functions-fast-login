@@ -14,8 +14,6 @@ paths:
   /info:
     get:
       operationId: info
-      # this path doesn't need authentication
-      security: [] 
       responses:
         '200':
           description: Success
