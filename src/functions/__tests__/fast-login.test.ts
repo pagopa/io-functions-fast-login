@@ -1,19 +1,11 @@
-import * as middlewares from "../../middlewares/request";
-import { PUBLIC_KEY_HEADER_NAME, makeFastLoginHandler } from "../fast-login";
+import { makeFastLoginHandler } from "../fast-login";
 import * as H from "@pagopa/handler-kit";
 import { httpHandlerInputMocks } from "../__mocks__/handlerMocks";
 import * as E from "fp-ts/Either";
 import { FnLollipopClient } from "../../utils/lollipop/dependency";
-import { AssertionTypeEnum } from "../../generated/definitions/fn-lollipop/AssertionType";
-import { LollipopMethodEnum } from "../../generated/definitions/internal/LollipopMethod";
 import {
-  aFiscalCode,
-  aLollipopSignature,
-  aLollipopSignatureInput,
   aSAMLResponse,
-  aValidJwk,
-  anAssertionRef,
-  toEncodedJwk
+  validLollipopHeaders
 } from "../__mocks__/lollipopMocks";
 
 const getAssertionMock = jest.fn(async () =>
@@ -26,23 +18,16 @@ const mockedFnLollipopClient = ({
   getAssertion: getAssertionMock
 } as unknown) as FnLollipopClient;
 describe("Fast Login handler", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   it(`GIVEN a valid LolliPoP request
       WHEN all checks passed
       THEN the SAMLResponse is returned`, async () => {
     const req: H.HttpRequest = {
       ...H.request("https://api.test.it/"),
       headers: {
-        [PUBLIC_KEY_HEADER_NAME]: "a-pub-key",
-        ["x-pagopa-lollipop-assertion-ref"]: anAssertionRef,
-        ["x-pagopa-lollipop-assertion-type"]: AssertionTypeEnum.SAML,
-        ["x-pagopa-lollipop-auth-jwt"]: "aFakeJwtToken",
-        ["x-pagopa-lollipop-original-method"]: LollipopMethodEnum.POST,
-        ["x-pagopa-lollipop-original-url"]: "https://api.test.it/fast-login",
-        ["x-pagopa-lollipop-public-key"]: toEncodedJwk(aValidJwk),
-        ["x-pagopa-lollipop-user-id"]: aFiscalCode,
-
-        ["signature"]: aLollipopSignature,
-        ["signature-input"]: aLollipopSignatureInput
+        ...validLollipopHeaders
       }
     };
     const result = await makeFastLoginHandler({

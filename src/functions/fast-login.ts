@@ -10,6 +10,7 @@ import {
   JwkPublicKey,
   JwkPublicKeyFromToken
 } from "@pagopa/ts-commons/lib/jwk";
+import { DOMParser } from "@xmldom/xmldom";
 import {
   RequiredHeaderMiddleware,
   RequiredHeadersMiddleware
