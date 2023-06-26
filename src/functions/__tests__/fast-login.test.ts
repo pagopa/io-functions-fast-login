@@ -4,7 +4,9 @@ import { httpHandlerInputMocks } from "../__mocks__/handlerMocks";
 import * as E from "fp-ts/Either";
 import { FnLollipopClient } from "../../utils/lollipop/dependency";
 import {
+  aLollipopInvalidSignature,
   aSAMLResponse,
+  anotherFiscalCode,
   validLollipopHeaders
 } from "../__mocks__/lollipopMocks";
 
@@ -60,11 +62,89 @@ describe("Fast Login handler", () => {
       input: req,
       fnLollipopClient: mockedFnLollipopClient
     })();
+    expect(getAssertionMock).not.toBeCalled();
     expect(E.isLeft(result)).toBeTruthy();
     if (E.isLeft(result)) {
       expect(result.left).toEqual(
         expect.objectContaining({
           status: 400
+        })
+      );
+    }
+  });
+
+  it(`GIVEN a invalid LolliPoP request
+      WHEN some required header is invalid
+      THEN a Bad Request error response is returned`, async () => {
+    const req: H.HttpRequest = {
+      ...H.request("https://api.test.it/"),
+      headers: {
+        ...validLollipopHeaders,
+        ["x-pagopa-lollipop-assertion-ref"]: "anInvalidAssertionRef"
+      }
+    };
+    const result = await makeFastLoginHandler({
+      ...httpHandlerInputMocks,
+      input: req,
+      fnLollipopClient: mockedFnLollipopClient
+    })();
+    expect(E.isLeft(result)).toBeTruthy();
+    expect(getAssertionMock).not.toBeCalled();
+    if (E.isLeft(result)) {
+      expect(result.left).toEqual(
+        expect.objectContaining({
+          status: 400
+        })
+      );
+    }
+  });
+  it(`GIVEN a invalid LolliPoP request
+      WHEN the signature is invalid
+      THEN a Unauthorize Request error response is returned`, async () => {
+    const req: H.HttpRequest = {
+      ...H.request("https://api.test.it/"),
+      headers: {
+        ...validLollipopHeaders,
+        ["signature"]: aLollipopInvalidSignature
+      }
+    };
+    const result = await makeFastLoginHandler({
+      ...httpHandlerInputMocks,
+      input: req,
+      fnLollipopClient: mockedFnLollipopClient
+    })();
+    expect(E.isLeft(result)).toBeTruthy();
+    expect(getAssertionMock).not.toBeCalled();
+    if (E.isLeft(result)) {
+      expect(result.left).toEqual(
+        expect.objectContaining({
+          status: 401
+        })
+      );
+    }
+  });
+
+  it(`GIVEN a valid LolliPoP request
+      WHEN the fiscal code doesn't match with the SAML Assertion value
+      THEN an Internal Server Error response is returned`, async () => {
+    const req: H.HttpRequest = {
+      ...H.request("https://api.test.it/"),
+      headers: {
+        ...validLollipopHeaders,
+        ["x-pagopa-lollipop-user-id"]: anotherFiscalCode
+      }
+    };
+    const result = await makeFastLoginHandler({
+      ...httpHandlerInputMocks,
+      input: req,
+      fnLollipopClient: mockedFnLollipopClient
+    })();
+    expect(getAssertionMock).toBeCalled();
+    expect(E.isLeft(result)).toBeTruthy();
+    if (E.isLeft(result)) {
+      expect(result.left).toEqual(
+        expect.objectContaining({
+          status: 500
         })
       );
     }

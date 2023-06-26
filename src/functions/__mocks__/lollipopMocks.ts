@@ -13,6 +13,9 @@ export const aFiscalCode = "AAAAAA89S20I111X" as FiscalCode;
 export const aLollipopSignature = "sig1=:OGC9Y859pwNax71eFBt1l8gY/l43rBDaEZWuG3WsIrdoO0FkKdUnILORcVRnTDwvyYydpsuUHNncjGrO/9yq0Q==:" as LollipopSignature;
 export const aLollipopSignatureInput = 'sig1=("x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url");created=1687783736;nonce="aNonce";alg="ecdsa-p256-sha256";keyid="sha256-nfHifyOpSxXJNNVeEKLc0bswCEufpZD3geT22d57aQ8"' as LollipopSignatureInput;
 
+export const aLollipopInvalidSignature = "sig1=:lTuoRytp53GuUMOB4Rz1z97Y96gfSeEOm/xVpO39d3HR6lLAy4KYiGq+1hZ7nmRFBt2bASWEpen7ov5O4wU3kQ==:" as LollipopSignature;
+export const anotherFiscalCode = "AAAAAA89S20I111Z" as FiscalCode;
+
 export const aValidJwk: JwkPublicKey = {
   kty: "EC",
   x: "FNcPnuD25doz1Ki9kwpbltSjG8Hkq8HDTnAO1jhne6M",
