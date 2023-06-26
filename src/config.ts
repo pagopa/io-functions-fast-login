@@ -13,6 +13,8 @@ import { pipe } from "fp-ts/lib/function";
 import * as reporters from "@pagopa/ts-commons/lib/reporters";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { UrlFromString } from "@pagopa/ts-commons/lib/url";
+import { withDefault } from "@pagopa/ts-commons/lib/types";
+import { NumberFromString } from "@pagopa/ts-commons/lib/numbers";
 
 // ----------------------------
 // Global app configuration
@@ -33,6 +35,9 @@ export const IConfig = t.intersection([
 
     COSMOS_CONNECTION_STRING: NonEmptyString,
     COSMOS_DB_NAME: NonEmptyString,
+
+    // Default is 10 sec timeout
+    FETCH_TIMEOUT_MS: withDefault(NumberFromString, 10000),
 
     isProduction: t.boolean
   }),

@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@pagopa/eslint-config": "^3.0.0",
+    "@types/express": "^4.17.12",
     "@types/jest": "^24.0.15",
     "@types/node": "~18.13.0",
     "auto-changelog": "^2.4.0",
@@ -50,6 +51,7 @@
   "dependencies": {
     "@azure/cosmos": "^3.17.3",
     "@azure/functions": "^3.5.1",
+    "@mattrglobal/http-signatures": "^4.0.1",
     "@pagopa/handler-kit": "^1.1.0",
     "@pagopa/handler-kit-azure-func": "^1.2.0",
     "@pagopa/io-functions-commons": "^26.2.1",
@@ -57,6 +59,6 @@
     "@pagopa/ts-commons": "^12.0.0",
     "fp-ts": "^2.13.1",
     "io-ts": "^2.2.19",
-    "io-ts-types": "^0.5.19"
+    "jose": "^4.14.4"
   }
 }

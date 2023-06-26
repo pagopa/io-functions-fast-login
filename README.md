@@ -64,6 +64,7 @@ The following table contains the required ENV variables that the applicative req
 | COSMOS_DB_NAME                  | citizen-auth Cosmos DB name                  | string |
 | LOLLIPOP_GET_ASSERTION_API_KEY  | API Key to authorize `getAssertion`          | string |
 | LOLLIPOP_GET_ASSERTION_BASE_URL | API Url for `getAssertion` operation         | string |
+| FETCH_TIMEOUT_MS                | (optional) Fetch Timeout for AbortableFetch  | number |
 ## Local Execution
 
 To execute locally the function copy the configuration from the `env.example` file with:
