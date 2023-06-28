@@ -85,12 +85,6 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/LollipopSignature'
-        - name: x-pagopa-fast-login-refresh-type
-          in: header
-          description: The source of the fast-login request
-          required: true
-          schema:
-            $ref: '#/components/schemas/FastLoginRequestType'
       responses:
         '200':
           description: Success response
