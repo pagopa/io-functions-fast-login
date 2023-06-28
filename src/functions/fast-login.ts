@@ -1,7 +1,7 @@
 import { httpAzureFunction } from "@pagopa/handler-kit-azure-func";
 import * as H from "@pagopa/handler-kit";
 import * as RTE from "fp-ts/ReaderTaskEither";
-import { flow, pipe } from "fp-ts/lib/function";
+import { pipe } from "fp-ts/lib/function";
 import { sequenceS } from "fp-ts/lib/Apply";
 import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
 import * as TE from "fp-ts/TaskEither";
@@ -11,6 +11,7 @@ import {
   JwkPublicKeyFromToken
 } from "@pagopa/ts-commons/lib/jwk";
 import { DOMParser } from "@xmldom/xmldom";
+import * as E from "fp-ts/Either";
 import {
   RequiredHeaderMiddleware,
   RequiredHeadersMiddleware
