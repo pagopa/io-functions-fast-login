@@ -31,7 +31,7 @@ import {
   isAssertionSaml
 } from "../utils/lollipop/assertion";
 import { LollipopAuthBearer } from "../generated/definitions/fn-lollipop/LollipopAuthBearer";
-import { validateHttpSignatureWithEconding } from "../utils/lollipop/crypto";
+import { validateHttpSignature } from "../utils/lollipop/crypto";
 import { AssertionRef } from "../generated/definitions/fn-lollipop/AssertionRef";
 
 /**
@@ -170,23 +170,12 @@ export const makeFastLoginHandler: H.Handler<
       )
     }),
     TE.chainFirstW(verifiedHeaders =>
-      pipe(
-        [
-          req,
+      validateHttpSignature({
+        assertionRef:
           verifiedHeaders.lollipopHeaders[ASSERTION_REF_HEADER_NAME],
-          verifiedHeaders.publicKey
-        ] as const,
-        params =>
-          pipe(
-            validateHttpSignatureWithEconding("der")(...params),
-            TE.orElse(() =>
-              validateHttpSignatureWithEconding("ieee-p1363")(...params)
-            )
-          ),
-        TE.mapLeft(
-          () => new H.HttpUnauthorizedError("Invalid Lollipop Signature")
-        )
-      )
+        publicKey: verifiedHeaders.publicKey,
+        request: req
+      })
     ),
     RTE.fromTaskEither,
     RTE.bindTo("verifiedHeaders"),

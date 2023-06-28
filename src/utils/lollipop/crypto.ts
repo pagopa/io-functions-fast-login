@@ -10,32 +10,32 @@ import { AssertionRef } from "../../generated/definitions/fn-lollipop/AssertionR
 import { JwkPubKeyHashAlgorithm } from "../../types/lollipop";
 import { getCustomVerifyWithEncoding } from "./httpSignature.verifiers";
 
+type ValidateHttpSignatureParams = {
+  readonly request: H.HttpRequest;
+  readonly assertionRef: AssertionRef;
+  readonly publicKey: JwkPublicKey;
+  readonly body?: string;
+};
+
 export const validateHttpSignatureWithEconding = (
   dsaEncoding: crypto_lib.DSAEncoding
-) => (
-  request: H.HttpRequest,
-  assertionRef: AssertionRef,
-  publicKey: JwkPublicKey,
-  body?: string
-): TE.TaskEither<Error, true> =>
+) => (params: ValidateHttpSignatureParams): TE.TaskEither<Error, true> =>
   pipe(
     {
-      body,
-      httpHeaders: request.headers,
-      method: request.method,
-      url: request.url,
+      body: params.body,
+      httpHeaders: params.request.headers,
+      method: params.request.method,
+      url: params.request.url,
       verifier: {
         verify: getCustomVerifyWithEncoding(dsaEncoding)({
-          [assertionRef]: {
-            key: publicKey
+          [params.assertionRef]: {
+            key: params.publicKey
           }
         })
       }
     },
     TE.of,
-    TE.chain(params =>
-      TE.tryCatch(async () => verifySignatureHeader(params), E.toError)
-    ),
+    TE.chain(p => TE.tryCatch(async () => verifySignatureHeader(p), E.toError)),
     TE.map(res =>
       res.map(r =>
         r.verified
@@ -52,6 +52,17 @@ export const validateHttpSignatureWithEconding = (
         TE.left(new Error("An error occurred during signature check"))
       )
     )
+  );
+
+export const validateHttpSignature = (
+  params: ValidateHttpSignatureParams
+): TE.TaskEither<Error, true> =>
+  pipe(
+    pipe(
+      validateHttpSignatureWithEconding("der")(params),
+      TE.orElse(() => validateHttpSignatureWithEconding("ieee-p1363")(params))
+    ),
+    TE.mapLeft(() => new H.HttpUnauthorizedError("Invalid Lollipop Signature"))
   );
 
 /**
