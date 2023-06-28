@@ -189,41 +189,40 @@ export const makeFastLoginHandler: H.Handler<
       )
     ),
     RTE.fromTaskEither,
-    rte =>
+    RTE.bindTo("verifiedHeaders"),
+    RTE.bindW("samlResponse", ({ verifiedHeaders }) =>
+      RetrieveSAMLResponse(verifiedHeaders.lollipopHeaders)
+    ),
+    RTE.bindW("samlResponseDoc", ({ samlResponse }) =>
       pipe(
-        rte,
-        RTE.chain(_ => RetrieveSAMLResponse(_.lollipopHeaders)),
-        RTE.chainFirstW(({ saml_response }) =>
-          pipe(
-            TE.tryCatch(
-              async () =>
-                new DOMParser().parseFromString(saml_response, "text/xml"),
-              () => new H.HttpError("Error parsing the SAMLResponse")
+        TE.tryCatch(
+          async () =>
+            new DOMParser().parseFromString(
+              samlResponse.saml_response,
+              "text/xml"
             ),
-            RTE.fromTaskEither,
-            RTE.bindTo("samlResponseDoc"),
-            RTE.bindW("verifiedHeaders", () => rte),
-            RTE.chain(_ =>
-              pipe(
-                [
-                  getAssertionRefVsInRensponseToVerifier(
-                    _.verifiedHeaders.publicKey,
-                    _.verifiedHeaders.lollipopHeaders[ASSERTION_REF_HEADER_NAME]
-                  ),
-                  getAssertionUserIdVsCfVerifier(
-                    _.verifiedHeaders.lollipopHeaders[
-                      "x-pagopa-lollipop-user-id"
-                    ]
-                  )
-                ],
-                RA.map(verifier => verifier(_.samlResponseDoc)),
-                TE.sequenceArray,
-                RTE.fromTaskEither
-              )
-            )
+          () => new H.HttpError("Error parsing the SAMLResponse")
+        ),
+        RTE.fromTaskEither
+      )
+    ),
+    RTE.chainFirstW(({ verifiedHeaders, samlResponseDoc }) =>
+      pipe(
+        [
+          getAssertionRefVsInRensponseToVerifier(
+            verifiedHeaders.publicKey,
+            verifiedHeaders.lollipopHeaders[ASSERTION_REF_HEADER_NAME]
+          ),
+          getAssertionUserIdVsCfVerifier(
+            verifiedHeaders.lollipopHeaders["x-pagopa-lollipop-user-id"]
           )
-        )
-      ),
+        ],
+        RA.map(verifier => verifier(samlResponseDoc)),
+        TE.sequenceArray,
+        RTE.fromTaskEither
+      )
+    ),
+    RTE.map(({ samlResponse }) => samlResponse),
     RTE.map(H.successJson)
   )
 );
