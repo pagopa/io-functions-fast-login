@@ -38,15 +38,14 @@ describe("Fast Login handler", () => {
       fnLollipopClient: mockedFnLollipopClient
     })();
     expect(getAssertionMock).toBeCalled();
-    expect(E.isRight(result)).toBeTruthy();
-    if (E.isRight(result)) {
-      expect(result.right).toEqual(
+    expect(result).toEqual(
+      E.right(
         expect.objectContaining({
           body: { saml_response: aSAMLResponse },
           statusCode: 200
         })
-      );
-    }
+      )
+    );
   });
   it(`GIVEN a invalid LolliPoP request
       WHEN all the required headers are missing
@@ -63,16 +62,14 @@ describe("Fast Login handler", () => {
       fnLollipopClient: mockedFnLollipopClient
     })();
     expect(getAssertionMock).not.toBeCalled();
-    expect(E.isLeft(result)).toBeTruthy();
-    if (E.isLeft(result)) {
-      expect(result.left).toEqual(
+    expect(result).toEqual(
+      E.left(
         expect.objectContaining({
           status: 400
         })
-      );
-    }
+      )
+    );
   });
-
   it(`GIVEN a invalid LolliPoP request
       WHEN some required header is invalid
       THEN a Bad Request error response is returned`, async () => {
@@ -115,15 +112,14 @@ describe("Fast Login handler", () => {
     })();
     expect(E.isLeft(result)).toBeTruthy();
     expect(getAssertionMock).not.toBeCalled();
-    if (E.isLeft(result)) {
-      expect(result.left).toEqual(
+    expect(result).toEqual(
+      E.left(
         expect.objectContaining({
           status: 401
         })
-      );
-    }
+      )
+    );
   });
-
   it(`GIVEN a valid LolliPoP request
       WHEN the fiscal code doesn't match with the SAML Assertion value
       THEN an Internal Server Error response is returned`, async () => {
@@ -140,13 +136,12 @@ describe("Fast Login handler", () => {
       fnLollipopClient: mockedFnLollipopClient
     })();
     expect(getAssertionMock).toBeCalled();
-    expect(E.isLeft(result)).toBeTruthy();
-    if (E.isLeft(result)) {
-      expect(result.left).toEqual(
+    expect(result).toEqual(
+      E.left(
         expect.objectContaining({
           status: 500
         })
-      );
-    }
+      )
+    );
   });
 });
