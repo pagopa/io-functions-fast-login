@@ -55,11 +55,8 @@ const RetrieveSAMLResponse: (
         }),
       () => new H.HttpError("Error calling the getAssertion endpoint")
     ),
-    TE.chainW(
-      flow(
-        TE.fromEither,
-        TE.mapLeft(_ => new H.HttpError("Unexpected response from fn-lollipop"))
-      )
+    TE.chainEitherK(
+      E.mapLeft(_ => new H.HttpError("Unexpected response from fn-lollipop"))
     ),
     TE.chain(response =>
       response.status === 200
