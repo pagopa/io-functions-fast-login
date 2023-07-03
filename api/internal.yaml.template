@@ -216,8 +216,3 @@ components:
     LollipopSignature:
       type: string
       pattern: "^((sig[0-9]+)=:[A-Za-z0-9+/=]*:(, ?)?)+$"
-    FastLoginRequestType:
-      type: string
-      enum:
-        - BIOMETRIC
-        - SILENT
