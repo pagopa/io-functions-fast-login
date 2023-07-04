@@ -12,19 +12,37 @@ import { pipe } from "fp-ts/lib/function";
 
 import * as reporters from "@pagopa/ts-commons/lib/reporters";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { UrlFromString } from "@pagopa/ts-commons/lib/url";
+import { withDefault } from "@pagopa/ts-commons/lib/types";
+import { NumberFromString } from "@pagopa/ts-commons/lib/numbers";
 
 // ----------------------------
 // Global app configuration
 // ----------------------------
+const GetAssertionConfig = t.type(
+  {
+    LOLLIPOP_GET_ASSERTION_API_KEY: NonEmptyString,
+    LOLLIPOP_GET_ASSERTION_BASE_URL: UrlFromString
+  },
+  "GetAssertionConfig"
+);
+type GetAssertionConfig = t.Type<typeof GetAssertionConfig>;
+
 export type IConfig = t.TypeOf<typeof IConfig>;
-export const IConfig = t.interface({
-  APPINSIGHTS_INSTRUMENTATIONKEY: NonEmptyString,
+export const IConfig = t.intersection([
+  t.interface({
+    APPINSIGHTS_INSTRUMENTATIONKEY: NonEmptyString,
 
-  COSMOS_CONNECTION_STRING: NonEmptyString,
-  COSMOS_DB_NAME: NonEmptyString,
+    COSMOS_CONNECTION_STRING: NonEmptyString,
+    COSMOS_DB_NAME: NonEmptyString,
 
-  isProduction: t.boolean
-});
+    // Default is 10 sec timeout
+    FETCH_TIMEOUT_MS: withDefault(t.string, "10000").pipe(NumberFromString),
+
+    isProduction: t.boolean
+  }),
+  GetAssertionConfig
+]);
 
 export const envConfig = {
   ...process.env,
