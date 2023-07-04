@@ -16,7 +16,7 @@ import {
   RequiredHeaderMiddleware,
   RequiredHeadersMiddleware
 } from "../middlewares/request";
-import { FastLoginSAML } from "../generated/definitions/internal/FastLoginSAML";
+import { FastLoginResponse } from "../generated/definitions/internal/FastLoginResponse";
 import {
   ASSERTION_REF_HEADER_NAME,
   LollipopHeaders,
@@ -45,7 +45,7 @@ const RetrieveSAMLResponse: (
 ) => RTE.ReaderTaskEither<
   FnLollipopClientDependency,
   H.HttpError,
-  FastLoginSAML
+  FastLoginResponse
 > = (lollipopHeaders: LollipopHeaders) => ({ fnLollipopClient }) =>
   pipe(
     TE.tryCatch(
@@ -157,7 +157,7 @@ export const getAssertionUserIdVsCfVerifier = (
 
 export const makeFastLoginHandler: H.Handler<
   H.HttpRequest,
-  H.HttpResponse<FastLoginSAML, 200>,
+  H.HttpResponse<FastLoginResponse, 200>,
   FnLollipopClientDependency
 > = H.of((req: H.HttpRequest) =>
   pipe(
