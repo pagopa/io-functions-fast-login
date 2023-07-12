@@ -5,21 +5,27 @@ import { LollipopSignatureInput } from "../../generated/definitions/internal/Lol
 import { JwkPublicKey } from "@pagopa/ts-commons/lib/jwk";
 import * as jose from "jose";
 import { AssertionTypeEnum } from "../../generated/definitions/internal/AssertionType";
-import { LollipopOriginalURL } from "../../generated/definitions/internal/LollipopOriginalURL";
 
-export const anAssertionRef = "sha256-nfHifyOpSxXJNNVeEKLc0bswCEufpZD3geT22d57aQ8" as AssertionRef;
+export const anAssertionRef = "sha256-iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU" as AssertionRef;
 export const aFiscalCode = "AAAAAA89S20I111X" as FiscalCode;
 
-export const aLollipopSignature = "sig1=:OGC9Y859pwNax71eFBt1l8gY/l43rBDaEZWuG3WsIrdoO0FkKdUnILORcVRnTDwvyYydpsuUHNncjGrO/9yq0Q==:" as LollipopSignature;
-export const aLollipopSignatureInput = 'sig1=("x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url");created=1687783736;nonce="aNonce";alg="ecdsa-p256-sha256";keyid="sha256-nfHifyOpSxXJNNVeEKLc0bswCEufpZD3geT22d57aQ8"' as LollipopSignatureInput;
+export const aLollipopSignature = "sig1=:J3zFtKVaXA4mn7dcQbd0+jHoI7peLuuq2FL5Lswllhn+cEWpjbOKxX1kkLtDtWJnZOaJePI6f+feUSfwb2VEGA==:" as LollipopSignature;
+export const aLollipopSignatureInput = 'sig1=("x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url");created=1689156528;nonce="aNonce";alg="ecdsa-p256-sha256";keyid="iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU"' as LollipopSignatureInput;
 
 export const aLollipopInvalidSignature = "sig1=:lTuoRytp53GuUMOB4Rz1z97Y96gfSeEOm/xVpO39d3HR6lLAy4KYiGq+1hZ7nmRFBt2bASWEpen7ov5O4wU3kQ==:" as LollipopSignature;
 export const anotherFiscalCode = "AAAAAA89S20I111Z" as FiscalCode;
 
+export const privateKeyJwk = {
+  kty: "EC",
+  x: "NYvuK5KwdMSelFJgPnL0fsxizwOKw0WbQyANB4O6l2c",
+  y: "qK9Zyso1CCwsUk985hnO5WEP3enSxpuD1n5JqtmZIEE",
+  crv: "P-256",
+  d: "6l1RECpU4cjYqpBmAN44yUrMt7SWJmOIb9z2nn0mwEg"
+};
 export const aValidJwk: JwkPublicKey = {
   kty: "EC",
-  x: "FNcPnuD25doz1Ki9kwpbltSjG8Hkq8HDTnAO1jhne6M",
-  y: "HchuwKzY2yqfYElK47nC-SR9xbR1f-2Oi-B2iksa1Bk",
+  x: "NYvuK5KwdMSelFJgPnL0fsxizwOKw0WbQyANB4O6l2c",
+  y: "qK9Zyso1CCwsUk985hnO5WEP3enSxpuD1n5JqtmZIEE",
   crv: "P-256"
 };
 export const toEncodedJwk = (jwk: JwkPublicKey) =>
@@ -45,7 +51,7 @@ export const aSAMLResponse = `<?xml version="1.0" encoding="UTF-8" standalone="n
 <saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol"
     Destination="https://app-backend.io.italia.it/assertionConsumerService"
     ID="_de2ce675-f1e5-46fc-96ed-019803471175"
-    InResponseTo="sha256-nfHifyOpSxXJNNVeEKLc0bswCEufpZD3geT22d57aQ8"
+    InResponseTo="sha256-iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU"
     IssueInstant="2023-02-28T16:27:26.400Z" Version="2.0">
     <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">https://posteid.poste.it</saml2:Issuer>
     <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
@@ -157,7 +163,7 @@ export const aSAMLResponse = `<?xml version="1.0" encoding="UTF-8" standalone="n
                 NameQualifier="https://posteid.poste.it">SPID-d4de186b-e103-4b39-8209-0bccc7b1acdd</saml2:NameID>
             <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
                 <saml2:SubjectConfirmationData
-                    InResponseTo="sha256-nfHifyOpSxXJNNVeEKLc0bswCEufpZD3geT22d57aQ8"
+                    InResponseTo="sha256-iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU"
                     NotOnOrAfter="2023-02-28T16:28:25.400Z"
                     Recipient="https://app-backend.io.italia.it/assertionConsumerService" />
             </saml2:SubjectConfirmation>
