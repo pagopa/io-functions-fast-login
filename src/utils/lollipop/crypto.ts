@@ -3,12 +3,14 @@ import { verifySignatureHeader } from "@mattrglobal/http-signatures";
 import * as TE from "fp-ts/TaskEither";
 import * as H from "@pagopa/handler-kit";
 import { JwkPublicKey } from "@pagopa/ts-commons/lib/jwk";
-import { pipe } from "fp-ts/lib/function";
+import { flow, pipe } from "fp-ts/lib/function";
 import * as E from "fp-ts/Either";
+import * as A from "fp-ts/Array";
 import * as jose from "jose";
 import { AssertionRef } from "../../generated/definitions/fn-lollipop/AssertionRef";
 import { JwkPubKeyHashAlgorithm } from "../../types/lollipop";
 import { getCustomVerifyWithEncoding } from "./httpSignature.verifiers";
+import { getAlgoFromAssertionRef } from "./assertion";
 
 type ValidateHttpSignatureParams = {
   readonly request: H.HttpRequest;
@@ -21,20 +23,28 @@ export const validateHttpSignatureWithEconding = (
   dsaEncoding: crypto_lib.DSAEncoding
 ) => (params: ValidateHttpSignatureParams): TE.TaskEither<Error, true> =>
   pipe(
-    {
+    params.assertionRef,
+    getAlgoFromAssertionRef,
+    algo => `${algo}-`,
+    assertionRefPrefix => params.assertionRef.split(assertionRefPrefix),
+    flow(
+      A.tail,
+      TE.fromOption(() => new Error("Unexpected assertionRef")),
+      TE.map(_ => _.join(""))
+    ),
+    TE.map(thumbprint => ({
       body: params.body,
       httpHeaders: params.request.headers,
       method: params.request.method,
       url: params.request.url,
       verifier: {
         verify: getCustomVerifyWithEncoding(dsaEncoding)({
-          [params.assertionRef]: {
+          [thumbprint]: {
             key: params.publicKey
           }
         })
       }
-    },
-    TE.of,
+    })),
     TE.chain(p => TE.tryCatch(async () => verifySignatureHeader(p), E.toError)),
     TE.map(res =>
       res.map(r =>

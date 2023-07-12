@@ -146,11 +146,11 @@ describe("Fast Login handler", () => {
     );
   });
   it.each`
-    WHEN                                               | getAssertion                                                                                                      | expectedErrorMessage
-    ${"the fn-lolliop return an OIDC claim"}           | ${Promise.resolve(E.right({ status: 200, value: { id_token: "OidcSignedJwt", claims_token: "OidcSignedJwt" } }))} | ${"OIDC Claims not supported yet."}
-    ${"the fn-lolliop return an error"}                | ${Promise.resolve(E.right({ status: 500, value: "" }))}                                                           | ${"Error retrieving the SAML Assertion"}
-    ${"the fn-lollipop return an unexpected response"} | ${Promise.resolve(NonEmptyString.decode(""))}                                                                     | ${"Unexpected response from fn-lollipop"}
-    ${"the fn-lolliop client throw an error"}          | ${Promise.reject(new Error("anError"))}                                                                           | ${"Error calling the getAssertion endpoint"}
+    WHEN                                               | getAssertion                                                                                                            | expectedErrorMessage
+    ${"the fn-lolliop return an OIDC claim"}           | ${() => Promise.resolve(E.right({ status: 200, value: { id_token: "OidcSignedJwt", claims_token: "OidcSignedJwt" } }))} | ${"OIDC Claims not supported yet."}
+    ${"the fn-lolliop return an error"}                | ${() => Promise.resolve(E.right({ status: 500, value: "" }))}                                                           | ${"Error retrieving the SAML Assertion"}
+    ${"the fn-lollipop return an unexpected response"} | ${() => Promise.resolve(NonEmptyString.decode(""))}                                                                     | ${"Unexpected response from fn-lollipop"}
+    ${"the fn-lolliop client throw an error"}          | ${() => Promise.reject(new Error("anError"))}                                                                           | ${"Error calling the getAssertion endpoint"}
   `(
     `GIVEN a valid LolliPoP request
      WHEN $WHEN
@@ -162,7 +162,7 @@ describe("Fast Login handler", () => {
           ...validLollipopHeaders
         }
       };
-      getAssertionMock.mockImplementationOnce(() => getAssertion);
+      getAssertionMock.mockImplementationOnce(getAssertion);
       const result = await makeFastLoginHandler({
         ...httpHandlerInputMocks,
         input: req,
