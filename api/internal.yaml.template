@@ -149,8 +149,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalServerError'
-
-  /v1/lock-session:
+  /v1/sessions/lock:
     post:
       operationId: lockUserSession
       summary: Lock User Session on IO App
@@ -159,6 +158,37 @@ paths:
           application/json:
             schema:
               $ref: "#components/schemas/LockSessionData" 
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '409':
+          description: Conflict
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    delete:
+      operationId: unlockUserSession
+      summary: Unlock User Session on IO App
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/UnlockSessionData" 
       responses:
         '200':
           description: Success
@@ -174,6 +204,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: Forbidden
         '409':
           description: Conflict
         '500':
@@ -318,4 +350,14 @@ components:
           $ref: "#/components/schemas/UnlockCode"
       required:
         - fiscalCode
->>>>>>> 32ec487 ([#IOPID-428] add logout and lock-session endpoints)
+        - unlock_code
+    UnlockSessionData:
+      type: object
+      properties:
+        fiscal_code:
+          $ref: "#/components/schemas/FiscalCode"
+        unlock_code:
+          $ref: "#/components/schemas/UnlockCode"
+      required:
+        - fiscalCode
+>>>>>>> e06fa9e ([#IOPID-428] add unlockSession + small fix)
