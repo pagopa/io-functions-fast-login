@@ -114,6 +114,75 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
+
+  ###########################
+  # IO-Web apis             #
+  ###########################
+
+  /v1/logout:
+    post:
+      operationId: logoutFromIOApp
+      summary: Logout User from IO App
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/LogoutData" 
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+
+  /v1/lock-session:
+    post:
+      operationId: lockUserSession
+      summary: Lock User Session on IO App
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/LockSessionData" 
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '409':
+          description: Conflict
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -207,8 +276,10 @@ components:
       $ref: "../node_modules/@pagopa/io-functions-commons/openapi/lollipop_definitions.yaml#/components/schemas/AssertionRefSha384"
     AssertionRefSha512:
       $ref: "../node_modules/@pagopa/io-functions-commons/openapi/lollipop_definitions.yaml#/components/schemas/AssertionRefSha512"
-    LollipopUserId:
+    FiscalCode:
       $ref: "../node_modules/@pagopa/io-functions-commons/openapi/definitions.yaml#/FiscalCode"
+    LollipopUserId:
+      $ref: "#/components/schemas/FiscalCode"
     LollipopPublicKey:
       type: string
       minLength: 1
@@ -228,3 +299,23 @@ components:
       format: IPString
       x-import: '@pagopa/ts-commons/lib/strings'
       example: "192.168.1.10"
+    UnlockCode:
+      type: string
+      minLength: 9
+    LogoutData:
+      type: object
+      properties:
+        fiscal_code:
+          $ref: "#/components/schemas/FiscalCode"
+      required:
+        - fiscalCode
+    LockSessionData:
+      type: object
+      properties:
+        fiscal_code:
+          $ref: "#/components/schemas/FiscalCode"
+        unlock_code:
+          $ref: "#/components/schemas/UnlockCode"
+      required:
+        - fiscalCode
+>>>>>>> 32ec487 ([#IOPID-428] add logout and lock-session endpoints)

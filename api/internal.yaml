@@ -64,7 +64,7 @@ paths:
           description: User's fiscal code.
           required: true
           schema:
-            $ref: '#/components/schemas/LollipopUserId'
+            $ref: '#/components/schemas/FiscalCode'
         - name: x-pagopa-lollipop-public-key
           in: header
           description: User's public key
@@ -110,6 +110,68 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+  /v1/logout:
+    post:
+      operationId: logoutFromIOApp
+      summary: Logout User from IO App
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#components/schemas/LogoutData'
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+  /v1/lock-session:
+    post:
+      operationId: lockUserSession
+      summary: Lock User Session on IO App
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#components/schemas/LockSessionData'
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '409':
+          description: Conflict
         '500':
           description: Server error
           content:
@@ -263,12 +325,14 @@ components:
     AssertionRefSha512:
       type: string
       pattern: ^(sha512-[A-Za-z0-9-_=]{1,88})$
-    LollipopUserId:
+    FiscalCode:
       type: string
       description: User's fiscal code.
       format: FiscalCode
       x-import: '@pagopa/ts-commons/lib/strings'
       example: SPNDNL80R13C555X
+    LollipopUserId:
+      $ref: '#/components/schemas/FiscalCode'
     LollipopPublicKey:
       type: string
       minLength: 1
@@ -288,3 +352,22 @@ components:
       format: IPString
       x-import: '@pagopa/ts-commons/lib/strings'
       example: 192.168.1.10
+    UnlockCode:
+      type: string
+      minLength: 9
+    LogoutData:
+      type: object
+      properties:
+        fiscal_code:
+          $ref: '#/components/schemas/FiscalCode'
+      required:
+        - fiscalCode
+    LockSessionData:
+      type: object
+      properties:
+        fiscal_code:
+          $ref: '#/components/schemas/FiscalCode'
+        unlock_code:
+          $ref: '#/components/schemas/UnlockCode'
+      required:
+        - fiscalCode
