@@ -146,6 +146,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalServerError'
+        '502':
+          description: Bad Gateway
+        '504':
+          description: Gateway Timeout
   /v1/sessions/lock:
     post:
       operationId: lockUserSession
@@ -178,6 +182,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalServerError'
+        '502':
+          description: Bad Gateway
+        '504':
+          description: Gateway Timeout
     delete:
       operationId: unlockUserSession
       summary: Unlock User Session on IO App
@@ -211,6 +219,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalServerError'
+        '502':
+          description: Bad Gateway
+        '504':
+          description: Gateway Timeout
+  /v1/sessions-state:
+    post:
+      operationId: getUserSessionState
+      summary: Get User Session State on IO App
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#components/schemas/GetSessionStateData'
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionState'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '502':
+          description: Bad Gateway
+        '504':
+          description: Gateway Timeout
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -414,3 +464,32 @@ components:
           $ref: '#/components/schemas/UnlockCode'
       required:
         - fiscalCode
+    GetSessionStateData:
+      type: object
+      properties:
+        fiscal_code:
+          $ref: '#/components/schemas/FiscalCode'
+      required:
+        - fiscalCode
+    SessionState:
+      oneOf:
+        - type: object
+          properties:
+            enabled:
+              type: boolean
+              enum:
+                - true
+            expiration_date:
+              type: string
+              format: date
+          required:
+            - enabled
+            - expiration_date
+        - type: object
+          properties:
+            enabled:
+              type: boolean
+              enum:
+                - false
+          required:
+            - enabled
