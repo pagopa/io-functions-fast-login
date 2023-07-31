@@ -471,11 +471,22 @@ components:
           $ref: '#/components/schemas/FiscalCode'
       required:
         - fiscalCode
-    SessionState:
+    SessionInfo:
+      description: Info about an user session
       oneOf:
         - type: object
+          description: Inactive session
           properties:
-            enabled:
+            active:
+              type: boolean
+              enum:
+                - false
+          required:
+            - active
+        - type: object
+          description: Active session
+          properties:
+            active:
               type: boolean
               enum:
                 - true
@@ -483,13 +494,16 @@ components:
               type: string
               format: date
           required:
-            - enabled
+            - active
             - expiration_date
-        - type: object
-          properties:
-            enabled:
-              type: boolean
-              enum:
-                - false
-          required:
-            - enabled
+    SessionState:
+      description: The state of the user' session
+      type: object
+      properties:
+        access_enabled:
+          type: boolean
+        session_info:
+          $ref: '#/components/schemas/SessionInfo'
+      required:
+        - access_enabled
+        - session_info
