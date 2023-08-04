@@ -439,6 +439,7 @@ components:
     UnlockCode:
       type: string
       minLength: 9
+      maxLength: 9
     LogoutData:
       type: object
       properties:
