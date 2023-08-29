@@ -90,7 +90,7 @@ paths:
           description: User's original IP address
           required: true
           schema:
-            $ref: '#/components/schemas/IPString'
+            $ref: '#/components/schemas/LVClientIp'
       responses:
         '200':
           description: Success response
@@ -282,7 +282,7 @@ components:
     LollipopSignature:
       type: string
       pattern: ^((sig[0-9]+)=:[A-Za-z0-9+/=]*:(, ?)?)+$
-    IPString:
+    LVClientIp:
       type: string
       description: The user IP address
       format: IPString

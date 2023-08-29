@@ -1,9 +1,5 @@
 import * as t from "io-ts";
-import {
-  FiscalCode,
-  IPString,
-  NonEmptyString
-} from "@pagopa/ts-commons/lib/strings";
+import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { enumType } from "@pagopa/ts-commons/lib/types";
 import { AssertionRef } from "../generated/definitions/fn-lollipop/AssertionRef";
 import { AssertionType } from "../generated/definitions/fn-lollipop/AssertionType";
@@ -12,6 +8,7 @@ import { LollipopOriginalURL } from "../generated/definitions/internal/LollipopO
 import { LollipopSignatureInput } from "../generated/definitions/internal/LollipopSignatureInput";
 import { LollipopSignature } from "../generated/definitions/internal/LollipopSignature";
 import { LollipopPublicKey } from "../generated/definitions/internal/LollipopPublicKey";
+import { LVClientIp } from "../generated/definitions/internal/LVClientIp";
 
 export const PUBLIC_KEY_HEADER_NAME = "x-pagopa-lollipop-public-key" as NonEmptyString;
 export const ASSERTION_REF_HEADER_NAME = "x-pagopa-lollipop-assertion-ref";
@@ -35,7 +32,7 @@ export const FastLoginAdditionalHeaders =
   // TODO: This parameter will become required when the `io-backend` is updated
   // with the new client version of `io-fn-fast-login`
   t.partial({
-    ["x-pagopa-lv-client-ip"]: IPString
+    ["x-pagopa-lv-client-ip"]: LVClientIp
   });
 export type FastLoginAdditionalHeaders = t.TypeOf<
   typeof FastLoginAdditionalHeaders
