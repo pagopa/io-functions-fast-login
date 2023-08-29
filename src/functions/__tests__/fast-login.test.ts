@@ -48,6 +48,32 @@ describe("Fast Login handler", () => {
       )
     );
   });
+
+  it(`GIVEN a LolliPoP request
+      WHEN the user client IP is invalid
+      THEN a Bad Request error response is returned`, async () => {
+    const req: H.HttpRequest = {
+      ...H.request("https://api.test.it/"),
+      headers: {
+        ...validLollipopHeaders,
+        ["x-pagopa-lv-client-ip"]: "Invalid Client IP value"
+      }
+    };
+    const result = await makeFastLoginHandler({
+      ...httpHandlerInputMocks,
+      input: req,
+      fnLollipopClient: mockedFnLollipopClient
+    })();
+    expect(getAssertionMock).not.toBeCalled();
+    expect(result).toEqual(
+      E.left(
+        expect.objectContaining({
+          status: 400
+        })
+      )
+    );
+  });
+
   it(`GIVEN a invalid LolliPoP request
       WHEN all the required headers are missing
       THEN a Bad Request error response is returned`, async () => {

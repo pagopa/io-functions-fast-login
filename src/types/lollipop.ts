@@ -1,5 +1,9 @@
 import * as t from "io-ts";
-import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import {
+  FiscalCode,
+  IPString,
+  NonEmptyString
+} from "@pagopa/ts-commons/lib/strings";
 import { enumType } from "@pagopa/ts-commons/lib/types";
 import { AssertionRef } from "../generated/definitions/fn-lollipop/AssertionRef";
 import { AssertionType } from "../generated/definitions/fn-lollipop/AssertionType";
@@ -26,6 +30,16 @@ export const LollipopHeaders = t.type({
   ["signature-input"]: LollipopSignatureInput
 });
 export type LollipopHeaders = t.TypeOf<typeof LollipopHeaders>;
+
+export const FastLoginAdditionalHeaders =
+  // TODO: This parameter will become required when the `io-backend` is updated
+  // with the new client version of `io-fn-fast-login`
+  t.partial({
+    ["x-pagopa-lv-client-ip"]: IPString
+  });
+export type FastLoginAdditionalHeaders = t.TypeOf<
+  typeof FastLoginAdditionalHeaders
+>;
 
 export enum JwkPubKeyHashAlgorithmEnum {
   "sha256" = "sha256",
