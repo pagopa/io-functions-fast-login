@@ -1,6 +1,11 @@
 import * as t from "io-ts";
-import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import {
+  FiscalCode,
+  IPString,
+  NonEmptyString
+} from "@pagopa/ts-commons/lib/strings";
 import { enumType } from "@pagopa/ts-commons/lib/types";
+import { IsoDateFromString } from "@pagopa/ts-commons/lib/dates";
 import { AssertionRef } from "../generated/definitions/fn-lollipop/AssertionRef";
 import { AssertionType } from "../generated/definitions/fn-lollipop/AssertionType";
 import { LollipopMethod } from "../generated/definitions/internal/LollipopMethod";
@@ -51,3 +56,14 @@ export const JwkPubKeyHashAlgorithm = enumType<JwkPubKeyHashAlgorithmEnum>(
   JwkPubKeyHashAlgorithmEnum,
   "JwkPubKeyHashAlgorithm"
 );
+
+export const FastLoginAuditDoc = t.type({
+  assertion_xml: t.string,
+  client_ip: IPString,
+  created_at: IsoDateFromString,
+  lollipop_request: t.type({
+    body: t.any,
+    headers: LollipopHeaders
+  })
+});
+export type FastLoginAuditDoc = t.TypeOf<typeof FastLoginAuditDoc>;

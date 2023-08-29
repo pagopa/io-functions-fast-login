@@ -6,6 +6,7 @@ import {
 } from "@pagopa/ts-commons/lib/fetch";
 import { agent } from "@pagopa/ts-commons";
 import { Millisecond } from "@pagopa/ts-commons/lib/units";
+import { createBlobService } from "azure-storage";
 import { getConfigOrThrow } from "./config";
 import { InfoFunction } from "./functions/info";
 import { FastLoginFunction } from "./functions/fast-login";
@@ -33,5 +34,9 @@ export const fnLollipopClient: FnLollipopClient = createClient({
     })
 });
 
+export const blobService = createBlobService(
+  config.FAST_LOGIN_AUDIT_CONNECTION_STRING
+);
+
 export const Info = InfoFunction({ db: database });
-export const FastLogin = FastLoginFunction({ fnLollipopClient });
+export const FastLogin = FastLoginFunction({ blobService, fnLollipopClient });

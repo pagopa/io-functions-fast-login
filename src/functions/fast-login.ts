@@ -3,15 +3,18 @@ import * as H from "@pagopa/handler-kit";
 import * as RTE from "fp-ts/ReaderTaskEither";
 import { pipe } from "fp-ts/lib/function";
 import { sequenceS } from "fp-ts/lib/Apply";
-import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
+import { FiscalCode, IPString } from "@pagopa/ts-commons/lib/strings";
 import * as TE from "fp-ts/TaskEither";
 import * as RA from "fp-ts/ReadonlyArray";
+import * as O from "fp-ts/Option";
 import {
   JwkPublicKey,
   JwkPublicKeyFromToken
 } from "@pagopa/ts-commons/lib/jwk";
 import { DOMParser } from "@xmldom/xmldom";
 import * as E from "fp-ts/Either";
+import { upsertBlobFromObject } from "@pagopa/io-functions-commons/dist/src/utils/azure_storage";
+import * as azureStorage from "azure-storage";
 import {
   RequiredHeaderMiddleware,
   RequiredHeadersMiddleware
@@ -20,6 +23,7 @@ import { FastLoginResponse } from "../generated/definitions/internal/FastLoginRe
 import {
   ASSERTION_REF_HEADER_NAME,
   FastLoginAdditionalHeaders,
+  FastLoginAuditDoc,
   LollipopHeaders,
   PUBLIC_KEY_HEADER_NAME
 } from "../types/lollipop";
@@ -70,6 +74,35 @@ const RetrieveSAMLResponse: (
       () => new H.HttpError("OIDC Claims not supported yet.")
     ),
     TE.map(assertion => ({ saml_response: assertion.response_xml }))
+  );
+
+export const StoreFastLoginAuditLogs: (
+  fastLoginAuditLogDoc: FastLoginAuditDoc
+) => RTE.ReaderTaskEither<
+  FnLollipopClientDependency,
+  H.HttpError,
+  azureStorage.BlobService.BlobResult
+> = (fastLoginAuditLogDoc: FastLoginAuditDoc) => ({ blobService }) =>
+  pipe(
+    TE.tryCatch(
+      () =>
+        // TODO: Add real container name and blob name
+        upsertBlobFromObject(
+          blobService,
+          "container_name",
+          "blob_name",
+          FastLoginAuditDoc.encode(fastLoginAuditLogDoc)
+        ),
+      () => new H.HttpError("Error calling the getAssertion endpoint")
+    ),
+    TE.chainEitherK(
+      E.mapLeft(_ => new H.HttpError("Unexpected response from fn-lollipop"))
+    ),
+    TE.chain(response =>
+      O.isSome(response) && response.value.created
+        ? TE.right(response.value)
+        : TE.left(new H.HttpError("The audit log was not saved"))
+    )
   );
 
 type Verifier = (assertion: Document) => TE.TaskEither<H.HttpError, true>;
@@ -215,6 +248,20 @@ export const makeFastLoginHandler: H.Handler<
         RTE.fromTaskEither
       )
     ),
+    // TODO: Add build of audit log and save into blob storage
+    RTE.chainFirstW(({ verifiedHeaders, samlResponse }) => {
+      const fastLoginAuditLogDoc: FastLoginAuditDoc = {
+        assertion_xml: samlResponse.saml_response,
+        // TODO: Take the IP address from the request
+        client_ip: "192.168.1.1" as IPString,
+        created_at: new Date(),
+        lollipop_request: {
+          body: req.body,
+          headers: verifiedHeaders.lollipopHeaders
+        }
+      };
+      return StoreFastLoginAuditLogs(fastLoginAuditLogDoc);
+    }),
     RTE.map(({ samlResponse }) => samlResponse),
     RTE.map(H.successJson)
   )
