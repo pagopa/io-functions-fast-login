@@ -1,9 +1,11 @@
+import * as crypto from "crypto";
 import { httpAzureFunction } from "@pagopa/handler-kit-azure-func";
 import * as H from "@pagopa/handler-kit";
 import * as RTE from "fp-ts/ReaderTaskEither";
 import { pipe } from "fp-ts/lib/function";
 import { sequenceS } from "fp-ts/lib/Apply";
-import { FiscalCode, IPString } from "@pagopa/ts-commons/lib/strings";
+import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
+import { format } from "date-fns";
 import * as TE from "fp-ts/TaskEither";
 import * as RA from "fp-ts/ReadonlyArray";
 import * as O from "fp-ts/Option";
@@ -77,26 +79,36 @@ const RetrieveSAMLResponse: (
   );
 
 export const StoreFastLoginAuditLogs: (
-  fastLoginAuditLogDoc: FastLoginAuditDoc
+  fastLoginAuditLogDoc: FastLoginAuditDoc,
+  logFileName: string
 ) => RTE.ReaderTaskEither<
   FnLollipopClientDependency,
   H.HttpError,
   azureStorage.BlobService.BlobResult
-> = (fastLoginAuditLogDoc: FastLoginAuditDoc) => ({ blobService }) =>
+> = (fastLoginAuditLogDoc: FastLoginAuditDoc, logFileName: string) => ({
+  blobService
+}) =>
   pipe(
     TE.tryCatch(
       () =>
-        // TODO: Add real container name and blob name
         upsertBlobFromObject(
           blobService,
-          "container_name",
-          "blob_name",
+          "logs",
+          logFileName,
           FastLoginAuditDoc.encode(fastLoginAuditLogDoc)
         ),
-      () => new H.HttpError("Error calling the getAssertion endpoint")
+      err =>
+        new H.HttpError(
+          `Connection error with the blob storage: [${E.toError(err).message}]`
+        )
     ),
     TE.chainEitherK(
-      E.mapLeft(_ => new H.HttpError("Unexpected response from fn-lollipop"))
+      E.mapLeft(
+        err =>
+          new H.HttpError(
+            `An error occurred saving the audit log: [${err.message}]`
+          )
+      )
     ),
     TE.chain(response =>
       O.isSome(response) && response.value.created
@@ -248,19 +260,26 @@ export const makeFastLoginHandler: H.Handler<
         RTE.fromTaskEither
       )
     ),
-    // TODO: Add build of audit log and save into blob storage
     RTE.chainFirstW(({ verifiedHeaders, samlResponse }) => {
       const fastLoginAuditLogDoc: FastLoginAuditDoc = {
         assertion_xml: samlResponse.saml_response,
-        // TODO: Take the IP address from the request
-        client_ip: "192.168.1.1" as IPString,
+        client_ip: verifiedHeaders.lvAdditionalHeaders["x-pagopa-lv-client-ip"],
         created_at: new Date(),
         lollipop_request: {
           body: req.body,
           headers: verifiedHeaders.lollipopHeaders
         }
       };
-      return StoreFastLoginAuditLogs(fastLoginAuditLogDoc);
+
+      // Generate the filename
+      const auditLogFilename = `${
+        verifiedHeaders.lollipopHeaders["x-pagopa-lollipop-user-id"]
+      }-${format(fastLoginAuditLogDoc.created_at, "yyyy-MM-ddTHH-mm-ss")}-${
+        verifiedHeaders.lollipopHeaders[ASSERTION_REF_HEADER_NAME]
+      }-${crypto.randomBytes(5).toString("hex")}`;
+
+      // Save the document into the audit log blob storage
+      return StoreFastLoginAuditLogs(fastLoginAuditLogDoc, auditLogFilename);
     }),
     RTE.map(({ samlResponse }) => samlResponse),
     RTE.map(H.successJson)
