@@ -8,6 +8,7 @@ import { LollipopOriginalURL } from "../generated/definitions/internal/LollipopO
 import { LollipopSignatureInput } from "../generated/definitions/internal/LollipopSignatureInput";
 import { LollipopSignature } from "../generated/definitions/internal/LollipopSignature";
 import { LollipopPublicKey } from "../generated/definitions/internal/LollipopPublicKey";
+import { LVClientIp } from "../generated/definitions/internal/LVClientIp";
 
 export const PUBLIC_KEY_HEADER_NAME = "x-pagopa-lollipop-public-key" as NonEmptyString;
 export const ASSERTION_REF_HEADER_NAME = "x-pagopa-lollipop-assertion-ref";
@@ -26,6 +27,13 @@ export const LollipopHeaders = t.type({
   ["signature-input"]: LollipopSignatureInput
 });
 export type LollipopHeaders = t.TypeOf<typeof LollipopHeaders>;
+
+export const FastLoginAdditionalHeaders = t.type({
+  ["x-pagopa-lv-client-ip"]: LVClientIp
+});
+export type FastLoginAdditionalHeaders = t.TypeOf<
+  typeof FastLoginAdditionalHeaders
+>;
 
 export enum JwkPubKeyHashAlgorithmEnum {
   "sha256" = "sha256",

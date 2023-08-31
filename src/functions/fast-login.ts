@@ -19,6 +19,7 @@ import {
 import { FastLoginResponse } from "../generated/definitions/internal/FastLoginResponse";
 import {
   ASSERTION_REF_HEADER_NAME,
+  FastLoginAdditionalHeaders,
   LollipopHeaders,
   PUBLIC_KEY_HEADER_NAME
 } from "../types/lollipop";
@@ -164,6 +165,9 @@ export const makeFastLoginHandler: H.Handler<
     req,
     sequenceS(RTE.ApplyPar)({
       lollipopHeaders: RequiredHeadersMiddleware(LollipopHeaders),
+      lvAdditionalHeaders: RequiredHeadersMiddleware(
+        FastLoginAdditionalHeaders
+      ),
       publicKey: RequiredHeaderMiddleware(
         JwkPublicKeyFromToken,
         PUBLIC_KEY_HEADER_NAME
