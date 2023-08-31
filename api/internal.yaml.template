@@ -227,4 +227,4 @@ components:
       description: The user IP address
       format: IPString
       x-import: '@pagopa/ts-commons/lib/strings'
-      example: 192.168.1.10
+      example: "192.168.1.10"

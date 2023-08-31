@@ -1,10 +1,20 @@
-import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import {
+  FiscalCode,
+  IPString,
+  NonEmptyString
+} from "@pagopa/ts-commons/lib/strings";
 import { AssertionRef } from "../../generated/definitions/fn-lollipop/AssertionRef";
 import { LollipopSignature } from "../../generated/definitions/internal/LollipopSignature";
 import { LollipopSignatureInput } from "../../generated/definitions/internal/LollipopSignatureInput";
 import { JwkPublicKey } from "@pagopa/ts-commons/lib/jwk";
 import * as jose from "jose";
 import { AssertionTypeEnum } from "../../generated/definitions/internal/AssertionType";
+import {
+  FastLoginAdditionalHeaders,
+  LollipopHeaders
+} from "../../types/lollipop";
+import { LollipopMethodEnum } from "../../generated/definitions/internal/LollipopMethod";
+import { LollipopOriginalURL } from "../../generated/definitions/internal/LollipopOriginalURL";
 
 export const anAssertionRef = "sha256-iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU" as AssertionRef;
 export const aFiscalCode = "AAAAAA89S20I111X" as FiscalCode;
@@ -31,7 +41,7 @@ export const aValidJwk: JwkPublicKey = {
 export const toEncodedJwk = (jwk: JwkPublicKey) =>
   jose.base64url.encode(JSON.stringify(jwk)) as NonEmptyString;
 
-export const validLollipopHeaders = {
+export const validLollipopHeaders: LollipopHeaders = {
   ["x-pagopa-lollipop-assertion-ref"]: anAssertionRef,
   ["x-pagopa-lollipop-assertion-type"]: AssertionTypeEnum.SAML,
   ["x-pagopa-lollipop-user-id"]: aFiscalCode,
@@ -40,11 +50,14 @@ export const validLollipopHeaders = {
   // ---------
   // verified header
   // ---------
-  ["x-pagopa-lollipop-original-method"]: "POST",
-  ["x-pagopa-lollipop-original-url"]:
-    "https://api-app.io.pagopa.it/api/v1/fast-login",
+  ["x-pagopa-lollipop-original-method"]: LollipopMethodEnum.POST,
+  ["x-pagopa-lollipop-original-url"]: "https://api-app.io.pagopa.it/api/v1/fast-login" as LollipopOriginalURL,
   ["signature"]: aLollipopSignature,
   ["signature-input"]: aLollipopSignatureInput
+};
+
+export const validFastLoginAdditionalHeaders: FastLoginAdditionalHeaders = {
+  "x-pagopa-lv-client-ip": "10.0.0.1" as IPString
 };
 
 export const aSAMLResponse = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>

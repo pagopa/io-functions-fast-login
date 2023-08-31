@@ -7,6 +7,7 @@ import {
   aLollipopInvalidSignature,
   aSAMLResponse,
   anotherFiscalCode,
+  validFastLoginAdditionalHeaders,
   validLollipopHeaders
 } from "../__mocks__/lollipopMocks";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
@@ -30,7 +31,8 @@ describe("Fast Login handler", () => {
     const req: H.HttpRequest = {
       ...H.request("https://api.test.it/"),
       headers: {
-        ...validLollipopHeaders
+        ...validLollipopHeaders,
+        ...validFastLoginAdditionalHeaders
       }
     };
     const result = await makeFastLoginHandler({
@@ -58,6 +60,28 @@ describe("Fast Login handler", () => {
         ...validLollipopHeaders,
         ["x-pagopa-lv-client-ip"]: "Invalid Client IP value"
       }
+    };
+    const result = await makeFastLoginHandler({
+      ...httpHandlerInputMocks,
+      input: req,
+      fnLollipopClient: mockedFnLollipopClient
+    })();
+    expect(getAssertionMock).not.toBeCalled();
+    expect(result).toEqual(
+      E.left(
+        expect.objectContaining({
+          status: 400
+        })
+      )
+    );
+  });
+
+  it(`GIVEN a LolliPoP request
+      WHEN the user client IP is missing
+      THEN a Bad Request error response is returned`, async () => {
+    const req: H.HttpRequest = {
+      ...H.request("https://api.test.it/"),
+      headers: validLollipopHeaders
     };
     const result = await makeFastLoginHandler({
       ...httpHandlerInputMocks,
@@ -104,7 +128,8 @@ describe("Fast Login handler", () => {
       ...H.request("https://api.test.it/"),
       headers: {
         ...validLollipopHeaders,
-        ["x-pagopa-lollipop-assertion-ref"]: "anInvalidAssertionRef"
+        ["x-pagopa-lollipop-assertion-ref"]: "anInvalidAssertionRef",
+        ...validFastLoginAdditionalHeaders
       }
     };
     const result = await makeFastLoginHandler({
@@ -129,7 +154,8 @@ describe("Fast Login handler", () => {
       ...H.request("https://api.test.it/"),
       headers: {
         ...validLollipopHeaders,
-        ["signature"]: aLollipopInvalidSignature
+        ["signature"]: aLollipopInvalidSignature,
+        ...validFastLoginAdditionalHeaders
       }
     };
     const result = await makeFastLoginHandler({
@@ -154,7 +180,8 @@ describe("Fast Login handler", () => {
       ...H.request("https://api.test.it/"),
       headers: {
         ...validLollipopHeaders,
-        ["x-pagopa-lollipop-user-id"]: anotherFiscalCode
+        ["x-pagopa-lollipop-user-id"]: anotherFiscalCode,
+        ...validFastLoginAdditionalHeaders
       }
     };
     const result = await makeFastLoginHandler({
@@ -185,7 +212,8 @@ describe("Fast Login handler", () => {
       const req: H.HttpRequest = {
         ...H.request("https://api.test.it/"),
         headers: {
-          ...validLollipopHeaders
+          ...validLollipopHeaders,
+          ...validFastLoginAdditionalHeaders
         }
       };
       getAssertionMock.mockImplementationOnce(getAssertion);

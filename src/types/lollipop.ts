@@ -28,12 +28,9 @@ export const LollipopHeaders = t.type({
 });
 export type LollipopHeaders = t.TypeOf<typeof LollipopHeaders>;
 
-export const FastLoginAdditionalHeaders =
-  // TODO: This parameter will become required when the `io-backend` is updated
-  // with the new client version of `io-fn-fast-login`
-  t.partial({
-    ["x-pagopa-lv-client-ip"]: LVClientIp
-  });
+export const FastLoginAdditionalHeaders = t.type({
+  ["x-pagopa-lv-client-ip"]: LVClientIp
+});
 export type FastLoginAdditionalHeaders = t.TypeOf<
   typeof FastLoginAdditionalHeaders
 >;
