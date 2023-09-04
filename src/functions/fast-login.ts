@@ -269,11 +269,12 @@ export const makeFastLoginHandler: H.Handler<
       };
 
       // Generate the filename
+      // Formatted like `AAAAAA01B02C345D-2023-01-01T13-55-54-sha256-iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU-198a36`
       const auditLogFilename = `${
         verifiedHeaders.lollipopHeaders["x-pagopa-lollipop-user-id"]
       }-${format(fastLoginAuditLogDoc.created_at, "yyyy-MM-dd'T'HH-mm-ss")}-${
         verifiedHeaders.lollipopHeaders[ASSERTION_REF_HEADER_NAME]
-      }-${crypto.randomBytes(5).toString("hex")}`;
+      }-${crypto.randomBytes(3).toString("hex")}`;
 
       // Save the document into the audit log blob storage
       return StoreFastLoginAuditLogs(fastLoginAuditLogDoc, auditLogFilename);
