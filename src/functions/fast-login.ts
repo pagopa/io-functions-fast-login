@@ -97,10 +97,7 @@ export const StoreFastLoginAuditLogs: (
           logFileName,
           FastLoginAuditDoc.encode(fastLoginAuditLogDoc)
         ),
-      err =>
-        new H.HttpError(
-          `Connection error with the blob storage: [${E.toError(err).message}]`
-        )
+      err => new H.HttpError(`Unexpected error: [${E.toError(err).message}]`)
     ),
     TE.chainEitherK(
       E.mapLeft(

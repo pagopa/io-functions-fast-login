@@ -11,6 +11,9 @@ import {
   validLollipopHeaders
 } from "../__mocks__/lollipopMocks";
 import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
+import { BlobService } from "azure-storage";
+import * as O from "fp-ts/Option";
+import * as azureStorage from "@pagopa/io-functions-commons/dist/src/utils/azure_storage";
 
 const getAssertionMock = jest.fn(async () =>
   E.right({
@@ -21,6 +24,17 @@ const getAssertionMock = jest.fn(async () =>
 const mockedFnLollipopClient = ({
   getAssertion: getAssertionMock
 } as unknown) as FnLollipopClient;
+const mockBlobService = ({} as unknown) as BlobService;
+const mockUpsertBlobFromObject = jest
+  .spyOn(azureStorage, "upsertBlobFromObject")
+  .mockResolvedValue(
+    E.right(
+      O.some({
+        created: true
+      } as any)
+    )
+  );
+
 describe("Fast Login handler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -38,9 +52,11 @@ describe("Fast Login handler", () => {
     const result = await makeFastLoginHandler({
       ...httpHandlerInputMocks,
       input: req,
-      fnLollipopClient: mockedFnLollipopClient
+      fnLollipopClient: mockedFnLollipopClient,
+      blobService: mockBlobService
     })();
     expect(getAssertionMock).toBeCalled();
+    expect(mockUpsertBlobFromObject).toBeCalled();
     expect(result).toEqual(
       E.right(
         expect.objectContaining({
@@ -64,9 +80,11 @@ describe("Fast Login handler", () => {
     const result = await makeFastLoginHandler({
       ...httpHandlerInputMocks,
       input: req,
-      fnLollipopClient: mockedFnLollipopClient
+      fnLollipopClient: mockedFnLollipopClient,
+      blobService: mockBlobService
     })();
     expect(getAssertionMock).not.toBeCalled();
+    expect(mockUpsertBlobFromObject).not.toBeCalled();
     expect(result).toEqual(
       E.left(
         expect.objectContaining({
@@ -86,9 +104,11 @@ describe("Fast Login handler", () => {
     const result = await makeFastLoginHandler({
       ...httpHandlerInputMocks,
       input: req,
-      fnLollipopClient: mockedFnLollipopClient
+      fnLollipopClient: mockedFnLollipopClient,
+      blobService: mockBlobService
     })();
     expect(getAssertionMock).not.toBeCalled();
+    expect(mockUpsertBlobFromObject).not.toBeCalled();
     expect(result).toEqual(
       E.left(
         expect.objectContaining({
@@ -110,9 +130,11 @@ describe("Fast Login handler", () => {
     const result = await makeFastLoginHandler({
       ...httpHandlerInputMocks,
       input: req,
-      fnLollipopClient: mockedFnLollipopClient
+      fnLollipopClient: mockedFnLollipopClient,
+      blobService: mockBlobService
     })();
     expect(getAssertionMock).not.toBeCalled();
+    expect(mockUpsertBlobFromObject).not.toBeCalled();
     expect(result).toEqual(
       E.left(
         expect.objectContaining({
@@ -135,10 +157,12 @@ describe("Fast Login handler", () => {
     const result = await makeFastLoginHandler({
       ...httpHandlerInputMocks,
       input: req,
-      fnLollipopClient: mockedFnLollipopClient
+      fnLollipopClient: mockedFnLollipopClient,
+      blobService: mockBlobService
     })();
     expect(E.isLeft(result)).toBeTruthy();
     expect(getAssertionMock).not.toBeCalled();
+    expect(mockUpsertBlobFromObject).not.toBeCalled();
     if (E.isLeft(result)) {
       expect(result.left).toEqual(
         expect.objectContaining({
@@ -161,10 +185,12 @@ describe("Fast Login handler", () => {
     const result = await makeFastLoginHandler({
       ...httpHandlerInputMocks,
       input: req,
-      fnLollipopClient: mockedFnLollipopClient
+      fnLollipopClient: mockedFnLollipopClient,
+      blobService: mockBlobService
     })();
     expect(E.isLeft(result)).toBeTruthy();
     expect(getAssertionMock).not.toBeCalled();
+    expect(mockUpsertBlobFromObject).not.toBeCalled();
     expect(result).toEqual(
       E.left(
         expect.objectContaining({
@@ -187,7 +213,8 @@ describe("Fast Login handler", () => {
     const result = await makeFastLoginHandler({
       ...httpHandlerInputMocks,
       input: req,
-      fnLollipopClient: mockedFnLollipopClient
+      fnLollipopClient: mockedFnLollipopClient,
+      blobService: mockBlobService
     })();
     expect(getAssertionMock).toBeCalled();
     expect(result).toEqual(
@@ -220,10 +247,55 @@ describe("Fast Login handler", () => {
       const result = await makeFastLoginHandler({
         ...httpHandlerInputMocks,
         input: req,
-        fnLollipopClient: mockedFnLollipopClient
+        fnLollipopClient: mockedFnLollipopClient,
+        blobService: mockBlobService
       })();
       expect(getAssertionMock).toBeCalled();
+      expect(mockUpsertBlobFromObject).not.toBeCalled();
       expect(result).toEqual(E.left(new H.HttpError(expectedErrorMessage)));
+    }
+  );
+
+  it.each`
+    WHEN                                      | upsertBlobFromObjectResult                    | expectedErrorMessage                                                 | resolve
+    ${"the blob storage returns no result"}   | ${E.right(O.none)}                            | ${"The audit log was not saved"}                                     | ${true}
+    ${"the blob wasn't created"}              | ${E.right(O.some({ created: false }))}        | ${"The audit log was not saved"}                                     | ${true}
+    ${"the blob sorage returns an error"}     | ${E.left(new Error("Storage Error Message"))} | ${"An error occurred saving the audit log: [Storage Error Message]"} | ${true}
+    ${"the blob sorage unexpectedly rejects"} | ${new Error("Unexpected error")}              | ${"Unexpected error: [Unexpected error]"}                            | ${false}
+  `(
+    `GIVEN a valid LolliPoP request
+     WHEN $WHEN
+     THEN an Internal Server Error response is returned`,
+    async ({ upsertBlobFromObjectResult, expectedErrorMessage, resolve }) => {
+      resolve
+        ? mockUpsertBlobFromObject.mockResolvedValueOnce(
+            upsertBlobFromObjectResult
+          )
+        : mockUpsertBlobFromObject.mockRejectedValueOnce(
+            upsertBlobFromObjectResult
+          );
+      const req: H.HttpRequest = {
+        ...H.request("https://api.test.it/"),
+        headers: {
+          ...validLollipopHeaders,
+          ...validFastLoginAdditionalHeaders
+        }
+      };
+      const result = await makeFastLoginHandler({
+        ...httpHandlerInputMocks,
+        input: req,
+        fnLollipopClient: mockedFnLollipopClient,
+        blobService: mockBlobService
+      })();
+      expect(getAssertionMock).toBeCalled();
+      expect(mockUpsertBlobFromObject).toBeCalled();
+      expect(result).toEqual(
+        E.left(
+          expect.objectContaining({
+            message: expectedErrorMessage
+          })
+        )
+      );
     }
   );
 });
