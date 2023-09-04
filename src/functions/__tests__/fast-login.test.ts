@@ -14,6 +14,7 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { BlobService } from "azure-storage";
 import * as O from "fp-ts/Option";
 import * as azureStorage from "@pagopa/io-functions-commons/dist/src/utils/azure_storage";
+import { format } from "date-fns";
 
 const getAssertionMock = jest.fn(async () =>
   E.right({

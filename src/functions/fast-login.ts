@@ -271,7 +271,7 @@ export const makeFastLoginHandler: H.Handler<
       // Generate the filename
       const auditLogFilename = `${
         verifiedHeaders.lollipopHeaders["x-pagopa-lollipop-user-id"]
-      }-${format(fastLoginAuditLogDoc.created_at, "yyyy-MM-ddTHH-mm-ss")}-${
+      }-${format(fastLoginAuditLogDoc.created_at, "yyyy-MM-dd'T'HH-mm-ss")}-${
         verifiedHeaders.lollipopHeaders[ASSERTION_REF_HEADER_NAME]
       }-${crypto.randomBytes(5).toString("hex")}`;
 
