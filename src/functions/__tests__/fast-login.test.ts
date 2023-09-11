@@ -14,7 +14,6 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { BlobService } from "azure-storage";
 import * as O from "fp-ts/Option";
 import * as azureStorage from "@pagopa/io-functions-commons/dist/src/utils/azure_storage";
-import { format } from "date-fns";
 
 const getAssertionMock = jest.fn(async () =>
   E.right({
@@ -58,6 +57,21 @@ describe("Fast Login handler", () => {
     })();
     expect(getAssertionMock).toBeCalled();
     expect(mockUpsertBlobFromObject).toBeCalled();
+    expect(mockUpsertBlobFromObject).toBeCalledWith(
+      {},
+      "logs",
+      // Check that the audit log filename starts with the fiscal code
+      expect.stringMatching(
+        new RegExp(`^${validLollipopHeaders["x-pagopa-lollipop-user-id"]}-?`)
+      ),
+      expect.objectContaining({
+        assertion_xml: aSAMLResponse,
+        client_ip: validFastLoginAdditionalHeaders["x-pagopa-lv-client-ip"],
+        lollipop_request: {
+          headers: expect.objectContaining(validLollipopHeaders)
+        }
+      })
+    );
     expect(result).toEqual(
       E.right(
         expect.objectContaining({
@@ -290,6 +304,17 @@ describe("Fast Login handler", () => {
       })();
       expect(getAssertionMock).toBeCalled();
       expect(mockUpsertBlobFromObject).toBeCalled();
+      expect(mockUpsertBlobFromObject).toBeCalledWith(
+        {},
+        "logs",
+        expect.stringMatching(
+          new RegExp(`^${validLollipopHeaders["x-pagopa-lollipop-user-id"]}-?`)
+        ),
+        expect.objectContaining({
+          assertion_xml: aSAMLResponse,
+          client_ip: validFastLoginAdditionalHeaders["x-pagopa-lv-client-ip"]
+        })
+      );
       expect(result).toEqual(
         E.left(
           expect.objectContaining({
