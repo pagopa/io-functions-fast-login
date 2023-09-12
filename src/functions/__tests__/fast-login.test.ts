@@ -274,7 +274,6 @@ describe("Fast Login handler", () => {
   it.each`
     WHEN                                      | upsertBlobFromObjectResult                    | expectedErrorMessage                                                 | resolve
     ${"the blob storage returns no result"}   | ${E.right(O.none)}                            | ${"The audit log was not saved"}                                     | ${true}
-    ${"the blob wasn't created"}              | ${E.right(O.some({ created: false }))}        | ${"The audit log was not saved"}                                     | ${true}
     ${"the blob sorage returns an error"}     | ${E.left(new Error("Storage Error Message"))} | ${"An error occurred saving the audit log: [Storage Error Message]"} | ${true}
     ${"the blob sorage unexpectedly rejects"} | ${new Error("Unexpected error")}              | ${"Unexpected error: [Unexpected error]"}                            | ${false}
   `(

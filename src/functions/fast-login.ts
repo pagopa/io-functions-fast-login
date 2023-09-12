@@ -8,7 +8,6 @@ import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
 import { format } from "date-fns";
 import * as TE from "fp-ts/TaskEither";
 import * as RA from "fp-ts/ReadonlyArray";
-import * as O from "fp-ts/Option";
 import {
   JwkPublicKey,
   JwkPublicKeyFromToken
@@ -17,6 +16,7 @@ import { DOMParser } from "@xmldom/xmldom";
 import * as E from "fp-ts/Either";
 import { upsertBlobFromObject } from "@pagopa/io-functions-commons/dist/src/utils/azure_storage";
 import * as azureStorage from "azure-storage";
+import * as t from "io-ts";
 import {
   RequiredHeaderMiddleware,
   RequiredHeadersMiddleware
@@ -107,10 +107,8 @@ export const StoreFastLoginAuditLogs: (
           )
       )
     ),
-    TE.chain(response =>
-      O.isSome(response) && response.value.created
-        ? TE.right(response.value)
-        : TE.left(new H.HttpError("The audit log was not saved"))
+    TE.chain(
+      TE.fromOption(() => new H.HttpError("The audit log was not saved"))
     )
   );
 
@@ -206,9 +204,10 @@ export const makeFastLoginHandler: H.Handler<
   pipe(
     req,
     sequenceS(RTE.ApplyPar)({
-      lollipopHeaders: RequiredHeadersMiddleware(LollipopHeaders),
+      // The exact decode is required to remove additional headers with security information like auth token
+      lollipopHeaders: RequiredHeadersMiddleware(t.exact(LollipopHeaders)),
       lvAdditionalHeaders: RequiredHeadersMiddleware(
-        FastLoginAdditionalHeaders
+        t.exact(FastLoginAdditionalHeaders)
       ),
       publicKey: RequiredHeaderMiddleware(
         JwkPublicKeyFromToken,
