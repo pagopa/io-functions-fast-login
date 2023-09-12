@@ -36,6 +36,8 @@ export const IConfig = t.intersection([
     COSMOS_CONNECTION_STRING: NonEmptyString,
     COSMOS_DB_NAME: NonEmptyString,
 
+    FAST_LOGIN_AUDIT_CONNECTION_STRING: NonEmptyString,
+
     // Default is 10 sec timeout
     FETCH_TIMEOUT_MS: withDefault(t.string, "10000").pipe(NumberFromString),
 
