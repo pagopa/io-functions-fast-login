@@ -449,14 +449,6 @@ components:
           required:
             - active
             - expiration_date
-        - type: object
-          properties:
-            enabled:
-              type: boolean
-              enum:
-                - false
-          required:
-            - enabled
     SessionState:
       description: The state of the user' session
       type: object
