@@ -119,15 +119,16 @@ paths:
   # IO-Web apis             #
   ###########################
 
-  /v1/logout:
+  /api/v1/logout:
     post:
       operationId: logoutFromIOApp
       summary: Logout User from IO App
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              $ref: "#components/schemas/LogoutData" 
+              $ref: "#/components/schemas/LogoutData" 
       responses:
         '200':
           description: Success
@@ -154,15 +155,16 @@ paths:
         '504':
           description: Gateway Timeout
         
-  /v1/lock-session:
+  /api/v1/lock-session:
     post:
       operationId: lockUserSession
       summary: Lock User Session on IO App
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              $ref: "#components/schemas/LockSessionData" 
+              $ref: "#/components/schemas/LockSessionData" 
       responses:
         '204':
           description: Session Successfully locked
@@ -190,15 +192,16 @@ paths:
           description: Bad Gateway
         '504':
           description: Gateway Timeout
-  /v1/unlock-session:
+  /api/v1/unlock-session:
     post:
       operationId: unlockUserSession
       summary: Unlock User Session on IO App
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              $ref: "#components/schemas/UnlockSessionData" 
+              $ref: "#/components/schemas/UnlockSessionData" 
       responses:
         '204':
           description: Session successfully unlocked
@@ -216,8 +219,8 @@ paths:
                 $ref: '#/components/schemas/Unauthorized'
         '403':
           description: Forbidden
-        '409':
-          description: Conflict
+        '429':	
+          description: 'Too Many Requests'
         '500':
           description: Server error
           content:
@@ -228,15 +231,16 @@ paths:
           description: Bad Gateway
         '504':
           description: Gateway Timeout
-  /v1/sessions-state:
+  /api/v1/session-state:
     post:
       operationId: getUserSessionState
       summary: Get User Session State on IO App
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              $ref: "#components/schemas/GetSessionStateData" 
+              $ref: "#/components/schemas/GetSessionStateData" 
       responses:
         '200':
           description: Created
