@@ -64,7 +64,7 @@ paths:
           description: User's fiscal code.
           required: true
           schema:
-            $ref: '#/components/schemas/LollipopUserId'
+            $ref: '#/components/schemas/FiscalCode'
         - name: x-pagopa-lollipop-public-key
           in: header
           description: User's public key
@@ -116,6 +116,156 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalServerError'
+  /api/v1/logout:
+    post:
+      operationId: logoutFromIOApp
+      summary: Logout User from IO App
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutData'
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '502':
+          description: Bad Gateway
+        '504':
+          description: Gateway Timeout
+  /api/v1/lock-session:
+    post:
+      operationId: lockUserSession
+      summary: Lock User Session on IO App
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LockSessionData'
+      responses:
+        '204':
+          description: Session Successfully locked
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '409':
+          description: Conflict
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '502':
+          description: Bad Gateway
+        '504':
+          description: Gateway Timeout
+  /api/v1/unlock-session:
+    post:
+      operationId: unlockUserSession
+      summary: Unlock User Session on IO App
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnlockSessionData'
+      responses:
+        '204':
+          description: Session successfully unlocked
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: Forbidden
+        '429':
+          description: Too Many Requests
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '502':
+          description: Bad Gateway
+        '504':
+          description: Gateway Timeout
+  /api/v1/session-state:
+    post:
+      operationId: getUserSessionState
+      summary: Get User Session State on IO App
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetSessionStateData'
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionState'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '502':
+          description: Bad Gateway
+        '504':
+          description: Gateway Timeout
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -263,12 +413,14 @@ components:
     AssertionRefSha512:
       type: string
       pattern: ^(sha512-[A-Za-z0-9-_=]{1,88})$
-    LollipopUserId:
+    FiscalCode:
       type: string
       description: User's fiscal code.
       format: FiscalCode
       x-import: '@pagopa/ts-commons/lib/strings'
       example: SPNDNL80R13C555X
+    LollipopUserId:
+      $ref: '#/components/schemas/FiscalCode'
     LollipopPublicKey:
       type: string
       minLength: 1
@@ -288,3 +440,76 @@ components:
       format: IPString
       x-import: '@pagopa/ts-commons/lib/strings'
       example: 192.168.1.10
+    UnlockCode:
+      type: string
+      minLength: 9
+      maxLength: 9
+    LogoutData:
+      type: object
+      properties:
+        fiscal_code:
+          $ref: '#/components/schemas/FiscalCode'
+      required:
+        - fiscalCode
+    LockSessionData:
+      type: object
+      properties:
+        fiscal_code:
+          $ref: '#/components/schemas/FiscalCode'
+        unlock_code:
+          $ref: '#/components/schemas/UnlockCode'
+      required:
+        - fiscalCode
+        - unlock_code
+    UnlockSessionData:
+      type: object
+      properties:
+        fiscal_code:
+          $ref: '#/components/schemas/FiscalCode'
+        unlock_code:
+          $ref: '#/components/schemas/UnlockCode'
+      required:
+        - fiscalCode
+    GetSessionStateData:
+      type: object
+      properties:
+        fiscal_code:
+          $ref: '#/components/schemas/FiscalCode'
+      required:
+        - fiscalCode
+    SessionInfo:
+      description: Info about an user session
+      oneOf:
+        - type: object
+          description: Inactive session
+          properties:
+            active:
+              type: boolean
+              enum:
+                - false
+          required:
+            - active
+        - type: object
+          description: Active session
+          properties:
+            active:
+              type: boolean
+              enum:
+                - true
+            expiration_date:
+              type: string
+              format: date
+          required:
+            - active
+            - expiration_date
+    SessionState:
+      description: The state of the user' session
+      type: object
+      properties:
+        access_enabled:
+          type: boolean
+        session_info:
+          $ref: '#/components/schemas/SessionInfo'
+      required:
+        - access_enabled
+        - session_info
