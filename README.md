@@ -66,6 +66,8 @@ The following table contains the required ENV variables that the applicative req
 | LOLLIPOP_GET_ASSERTION_BASE_URL    | API Url for `getAssertion` operation         | string |
 | FAST_LOGIN_AUDIT_CONNECTION_STRING | Audit logs blob connection string            | string |
 | FETCH_TIMEOUT_MS                   | (optional) Fetch Timeout for AbortableFetch  | number |
+| BACKEND_INTERNAL_API_KEY           | API Key to authorize `logout`                | string |
+| BACKEND_INTERNAL_BASE_URL          | API Url for `logout` operation               | string |
 ## Local Execution
 
 To execute locally the function copy the configuration from the `env.example` file with:

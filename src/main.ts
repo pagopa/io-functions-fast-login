@@ -12,6 +12,8 @@ import { InfoFunction } from "./functions/info";
 import { FastLoginFunction } from "./functions/fast-login";
 import { createClient } from "./generated/definitions/fn-lollipop/client";
 import { FnLollipopClient } from "./utils/lollipop/dependency";
+import { createClient as backendInternalCreateClient } from "./generated/definitions/backend-internal/client";
+import { LogoutFunction } from "./functions/logout";
 
 const config = getConfigOrThrow();
 
@@ -38,5 +40,19 @@ export const blobService = createBlobService(
   config.FAST_LOGIN_AUDIT_CONNECTION_STRING
 );
 
+export const backendInternalClient = backendInternalCreateClient<"token">({
+  baseUrl: config.BACKEND_INTERNAL_BASE_URL.href,
+  fetchApi: (toFetch(
+    setFetchTimeout(config.FETCH_TIMEOUT_MS as Millisecond, abortableFetch)
+  ) as unknown) as typeof fetch,
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  withDefaults: op => params =>
+    op({
+      ...params,
+      token: config.BACKEND_INTERNAL_API_KEY
+    })
+});
+
 export const Info = InfoFunction({ db: database });
 export const FastLogin = FastLoginFunction({ blobService, fnLollipopClient });
+export const Logout = LogoutFunction({ backendInternalClient });
