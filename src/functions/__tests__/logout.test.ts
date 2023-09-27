@@ -19,7 +19,7 @@ describe("Logout handler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  it("should return 200 with a valid payload", async () => {
+  it("should return 204 with a valid payload", async () => {
     const mockReq: H.HttpRequest = {
       ...H.request("https://api.test.it/"),
       body: aValidBody
@@ -35,7 +35,7 @@ describe("Logout handler", () => {
       fiscalcode: aValidBody.fiscal_code
     });
     expect(E.isRight(result)).toEqual(true);
-    expect(result).toMatchObject({ right: { statusCode: 200 } });
+    expect(result).toMatchObject({ right: { statusCode: 204 } });
   });
 
   it("should return a bad request error with an invalid payload", async () => {

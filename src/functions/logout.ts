@@ -42,7 +42,7 @@ const deleteUserSession: (
 
 export const makeLogoutHandler: H.Handler<
   H.HttpRequest,
-  H.HttpResponse<null, 200>,
+  H.HttpResponse<null, 204>,
   LogoutDependencies
 > = H.of((req: H.HttpRequest) =>
   pipe(
@@ -52,7 +52,7 @@ export const makeLogoutHandler: H.Handler<
     }),
     RTE.fromTaskEither,
     RTE.chain(({ bodyParams }) => deleteUserSession(bodyParams.fiscal_code)),
-    RTE.map(() => H.success(null))
+    RTE.map(() => H.empty)
   )
 );
 
