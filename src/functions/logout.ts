@@ -29,19 +29,15 @@ const deleteUserSession: (
         _ => new H.HttpError("Unexpected response from backend internal")
       )
     ),
-    TE.chain(response => {
-      // eslint-disable-next-line sonarjs/no-small-switch
-      switch (response.status) {
-        case 200:
-          return TE.right({ message: "User session deleted" });
-        default:
-          return TE.left(
-            new H.HttpError(
-              `Error while deleting user session: downstream component returned ${response.status}`
-            )
-          );
-      }
-    })
+    TE.chain(
+      TE.fromPredicate(
+        ({ status }) => status === 200,
+        ({ status }) =>
+          new H.HttpError(
+            `Error while deleting user session: downstream component returned ${status}`
+          )
+      )
+    )
   );
 
 export const makeLogoutHandler: H.Handler<
