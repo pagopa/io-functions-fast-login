@@ -33,6 +33,7 @@ describe("RequiredBodyMiddleware", () => {
     ${{ fiscalcode: "", sample: "" }}
     ${{ fiscalcode: aValidPayload.fiscalcode, sample: "" }}
     ${{ fiscalcode: "", sample: aValidPayload.sample }}
+    ${{ fiscalcode: "anInvalidFiscalCode", sample: aValidPayload.sample }}
   `("should fail while decoding and return an HTTP error", async ({ body }) => {
     const mockReq: H.HttpRequest = {
       ...H.request("https://api.test.it/"),
