@@ -28,6 +28,12 @@ const GetAssertionConfig = t.type(
 );
 type GetAssertionConfig = t.Type<typeof GetAssertionConfig>;
 
+const BackendInternalConfig = t.type({
+  BACKEND_INTERNAL_API_KEY: NonEmptyString,
+  BACKEND_INTERNAL_BASE_URL: UrlFromString
+});
+type BackendInternalConfig = t.TypeOf<typeof BackendInternalConfig>;
+
 export type IConfig = t.TypeOf<typeof IConfig>;
 export const IConfig = t.intersection([
   t.interface({
@@ -43,6 +49,7 @@ export const IConfig = t.intersection([
 
     isProduction: t.boolean
   }),
+  BackendInternalConfig,
   GetAssertionConfig
 ]);
 

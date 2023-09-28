@@ -39,3 +39,13 @@ export const RequiredHeadersMiddleware: <T>(
     E.mapLeft(err => new H.HttpBadRequestError(err.message)),
     TE.fromEither
   );
+
+export const RequiredBodyMiddleware: <T>(
+  schema: Decoder<unknown, T>
+) => RTE.ReaderTaskEither<H.HttpRequest, H.HttpBadRequestError, T> = schema =>
+  flow(
+    req => req.body,
+    H.parse(schema, "Missing or invalid body"),
+    E.mapLeft(error => new H.HttpBadRequestError(error.message)),
+    TE.fromEither
+  );

@@ -127,7 +127,7 @@ paths:
             schema:
               $ref: '#/components/schemas/LogoutData'
       responses:
-        '200':
+        '204':
           description: Success
         '400':
           description: Bad request
@@ -450,7 +450,7 @@ components:
         fiscal_code:
           $ref: '#/components/schemas/FiscalCode'
       required:
-        - fiscalCode
+        - fiscal_code
     LockSessionData:
       type: object
       properties:
@@ -459,7 +459,7 @@ components:
         unlock_code:
           $ref: '#/components/schemas/UnlockCode'
       required:
-        - fiscalCode
+        - fiscal_code
         - unlock_code
     UnlockSessionData:
       type: object
@@ -469,14 +469,14 @@ components:
         unlock_code:
           $ref: '#/components/schemas/UnlockCode'
       required:
-        - fiscalCode
+        - fiscal_code
     GetSessionStateData:
       type: object
       properties:
         fiscal_code:
           $ref: '#/components/schemas/FiscalCode'
       required:
-        - fiscalCode
+        - fiscal_code
     SessionInfo:
       description: Info about an user session
       oneOf:
