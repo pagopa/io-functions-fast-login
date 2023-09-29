@@ -2,7 +2,7 @@ import { makeLogoutHandler } from "../logout";
 import { httpHandlerInputMocks } from "../__mocks__/handlerMocks";
 import * as E from "fp-ts/lib/Either";
 import * as H from "@pagopa/handler-kit";
-import { aFiscalCode } from "../__mocks__/lollipopMocks";
+import { aFiscalCode } from "../__mocks__/general";
 
 const mockDeleteUserSession = jest
   .fn()
@@ -51,7 +51,6 @@ describe("Logout handler", () => {
 
     expect(mockDeleteUserSession).not.toHaveBeenCalled();
     expect(E.isRight(result)).toEqual(false);
-    console.log(result);
     expect(result).toMatchObject({
       left: { status: 400, title: "Bad Request" }
     });
@@ -80,7 +79,6 @@ describe("Logout handler", () => {
 
       expect(mockDeleteUserSession).toHaveBeenCalled();
       expect(E.isRight(result)).toEqual(false);
-      console.log(result);
       expect(result).toMatchObject({
         left: { status: 500, title: "Internal Server Error" }
       });
@@ -104,7 +102,6 @@ describe("Logout handler", () => {
       fiscalcode: aValidBody.fiscal_code
     });
     expect(E.isRight(result)).toEqual(false);
-    console.log(result);
     expect(result).toMatchObject({
       left: { status: 500, title: "Internal Server Error" }
     });
@@ -127,7 +124,6 @@ describe("Logout handler", () => {
       fiscalcode: aValidBody.fiscal_code
     });
     expect(E.isRight(result)).toEqual(false);
-    console.log(result);
     expect(result).toMatchObject({
       left: { status: 500, title: "Internal Server Error" }
     });

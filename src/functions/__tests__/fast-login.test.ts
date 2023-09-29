@@ -6,7 +6,6 @@ import { FnLollipopClient } from "../../utils/lollipop/dependency";
 import {
   aLollipopInvalidSignature,
   aSAMLResponse,
-  anotherFiscalCode,
   validFastLoginAdditionalHeaders,
   validLollipopHeaders
 } from "../__mocks__/lollipopMocks";
@@ -14,6 +13,7 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { BlobService } from "azure-storage";
 import * as O from "fp-ts/Option";
 import * as azureStorage from "@pagopa/io-functions-commons/dist/src/utils/azure_storage";
+import { anotherFiscalCode } from "../__mocks__/general";
 
 const getAssertionMock = jest.fn(async () =>
   E.right({

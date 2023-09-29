@@ -1,6 +1,6 @@
 import { Client } from "../../generated/definitions/backend-internal/client";
 
-export type FnLockSessionClientDependency = {
+export type LockSessionDependency = {
   readonly backendInternalClient: Client<"token">;
 };
 

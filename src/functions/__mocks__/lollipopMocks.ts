@@ -15,15 +15,14 @@ import {
 } from "../../types/lollipop";
 import { LollipopMethodEnum } from "../../generated/definitions/internal/LollipopMethod";
 import { LollipopOriginalURL } from "../../generated/definitions/internal/LollipopOriginalURL";
+import { aFiscalCode } from "./general";
 
 export const anAssertionRef = "sha256-iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU" as AssertionRef;
-export const aFiscalCode = "AAAAAA89S20I111X" as FiscalCode;
 
 export const aLollipopSignature = "sig1=:J3zFtKVaXA4mn7dcQbd0+jHoI7peLuuq2FL5Lswllhn+cEWpjbOKxX1kkLtDtWJnZOaJePI6f+feUSfwb2VEGA==:" as LollipopSignature;
 export const aLollipopSignatureInput = 'sig1=("x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url");created=1689156528;nonce="aNonce";alg="ecdsa-p256-sha256";keyid="iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU"' as LollipopSignatureInput;
 
 export const aLollipopInvalidSignature = "sig1=:lTuoRytp53GuUMOB4Rz1z97Y96gfSeEOm/xVpO39d3HR6lLAy4KYiGq+1hZ7nmRFBt2bASWEpen7ov5O4wU3kQ==:" as LollipopSignature;
-export const anotherFiscalCode = "AAAAAA89S20I111Z" as FiscalCode;
 
 export const privateKeyJwk = {
   kty: "EC",
