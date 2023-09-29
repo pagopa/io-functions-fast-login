@@ -7,7 +7,7 @@ import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
 import { RequiredBodyMiddleware } from "../middlewares/request";
-import { LogoutDependencies } from "../utils/logout/dependency";
+import { LogoutDependencies } from "../utils/ioweb/dependency";
 import { SuccessResponse as DeleteUserSessionSuccessResponse } from "../generated/definitions/backend-internal/SuccessResponse";
 import { LogoutData } from "../generated/definitions/internal/LogoutData";
 

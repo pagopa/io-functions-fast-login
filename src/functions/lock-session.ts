@@ -5,7 +5,7 @@ import { pipe } from "fp-ts/lib/function";
 import * as RTE from "fp-ts/lib/ReaderTaskEither";
 import { sequenceS } from "fp-ts/lib/Apply";
 import { RequiredBodyMiddleware } from "../middlewares/request";
-import { LockSessionData } from "../generated/fast-login-api/LockSessionData";
+import { LockSessionData } from "../generated/definitions/internal/LockSessionData";
 import { empty } from "@pagopa/handler-kit";
 
 const makeLockSessionHandler: H.Handler<
