@@ -8,7 +8,7 @@ const aValidBody = { fiscal_code: aFiscalCode, unlock_code: "123456789" };
 
 const mockLockUserSession = jest
   .fn()
-  .mockResolvedValue(E.right({ status: 201 }));
+  .mockResolvedValue(E.right({ status: 204 }));
 const mockBackendInternalClient = {
   authLock: mockLockUserSession
 } as any;

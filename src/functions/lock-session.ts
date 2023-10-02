@@ -35,7 +35,7 @@ const lockUserSession: (
       )
     ),
     TE.chain(({ status }) =>
-      status === 201
+      status === 204
         ? TE.right(undefined)
         : status === 409
         ? TE.left(
