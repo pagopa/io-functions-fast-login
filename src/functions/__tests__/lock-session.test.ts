@@ -1,58 +1,59 @@
-import { makeLogoutHandler } from "../logout";
+import { makeLockSessionHandler } from "../lock-session";
 import { httpHandlerInputMocks } from "../__mocks__/handlerMocks";
-import * as E from "fp-ts/lib/Either";
 import * as H from "@pagopa/handler-kit";
 import { aFiscalCode } from "../__mocks__/general";
+import * as E from "fp-ts/lib/Either";
 
-const mockDeleteUserSession = jest
+const aValidBody = { fiscal_code: aFiscalCode, unlock_code: "123456789" };
+
+const mockLockUserSession = jest
   .fn()
-  .mockResolvedValue(E.right({ status: 200 }));
+  .mockResolvedValue(E.right({ status: 204 }));
 const mockBackendInternalClient = {
-  deleteUserSession: mockDeleteUserSession
+  authLock: mockLockUserSession
 } as any;
 
-const aValidBody = {
-  fiscal_code: aFiscalCode
-};
-
-describe("Logout handler", () => {
+describe("LockSession handler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
   it("should return 204 with a valid payload", async () => {
     const mockReq: H.HttpRequest = {
       ...H.request("https://api.test.it/"),
       body: aValidBody
     };
-    const result = await makeLogoutHandler({
+    const result = await makeLockSessionHandler({
       ...httpHandlerInputMocks,
       input: mockReq,
       backendInternalClient: mockBackendInternalClient
     })();
 
-    expect(mockDeleteUserSession).toHaveBeenCalled();
-    expect(mockDeleteUserSession).toHaveBeenCalledWith({
-      fiscalcode: aValidBody.fiscal_code
+    expect(mockLockUserSession).toHaveBeenCalled();
+    expect(mockLockUserSession).toHaveBeenCalledWith({
+      fiscalcode: aValidBody.fiscal_code,
+      unlockcode: aValidBody.unlock_code
     });
     expect(E.isRight(result)).toEqual(true);
-    expect(result).toMatchObject({ right: { statusCode: 204 } });
+    expect(result).toMatchObject({ right: { statusCode: 204, body: null } });
   });
 
-  it("should return a bad request error with an invalid payload", async () => {
+  it("should return 409 when the user is already locked", async () => {
+    mockLockUserSession.mockResolvedValueOnce(E.right({ status: 409 }));
     const mockReq: H.HttpRequest = {
       ...H.request("https://api.test.it/"),
-      body: { fiscalcode: "abc" }
+      body: aValidBody
     };
-    const result = await makeLogoutHandler({
+    const result = await makeLockSessionHandler({
       ...httpHandlerInputMocks,
       input: mockReq,
       backendInternalClient: mockBackendInternalClient
     })();
 
-    expect(mockDeleteUserSession).not.toHaveBeenCalled();
+    expect(mockLockUserSession).toHaveBeenCalled();
     expect(E.isRight(result)).toEqual(false);
     expect(result).toMatchObject({
-      left: { status: 400, title: "Bad Request" }
+      left: { status: 409, title: "Conflict" }
     });
   });
 
@@ -64,20 +65,20 @@ describe("Logout handler", () => {
   `(
     "should return an internal error with a $responseCode from the downstream component",
     async ({ responseCode }) => {
-      mockDeleteUserSession.mockResolvedValueOnce(
+      mockLockUserSession.mockResolvedValueOnce(
         E.right({ status: responseCode })
       );
       const mockReq: H.HttpRequest = {
         ...H.request("https://api.test.it/"),
         body: aValidBody
       };
-      const result = await makeLogoutHandler({
+      const result = await makeLockSessionHandler({
         ...httpHandlerInputMocks,
         input: mockReq,
         backendInternalClient: mockBackendInternalClient
       })();
 
-      expect(mockDeleteUserSession).toHaveBeenCalled();
+      expect(mockLockUserSession).toHaveBeenCalled();
       expect(E.isRight(result)).toEqual(false);
       expect(result).toMatchObject({
         left: { status: 500, title: "Internal Server Error" }
@@ -86,20 +87,21 @@ describe("Logout handler", () => {
   );
 
   it("should return an internal error when the downstream component is unreachable via network", async () => {
-    mockDeleteUserSession.mockRejectedValueOnce({});
+    mockLockUserSession.mockRejectedValueOnce({});
     const mockReq: H.HttpRequest = {
       ...H.request("https://api.test.it/"),
       body: aValidBody
     };
-    const result = await makeLogoutHandler({
+    const result = await makeLockSessionHandler({
       ...httpHandlerInputMocks,
       input: mockReq,
       backendInternalClient: mockBackendInternalClient
     })();
 
-    expect(mockDeleteUserSession).toHaveBeenCalled();
-    expect(mockDeleteUserSession).toHaveBeenCalledWith({
-      fiscalcode: aValidBody.fiscal_code
+    expect(mockLockUserSession).toHaveBeenCalled();
+    expect(mockLockUserSession).toHaveBeenCalledWith({
+      fiscalcode: aValidBody.fiscal_code,
+      unlockcode: aValidBody.unlock_code
     });
     expect(E.isRight(result)).toEqual(false);
     expect(result).toMatchObject({
@@ -108,20 +110,21 @@ describe("Logout handler", () => {
   });
 
   it("should return an internal error when the downstream component gives an unexpected response", async () => {
-    mockDeleteUserSession.mockResolvedValueOnce(E.left({}));
+    mockLockUserSession.mockResolvedValueOnce(E.left({}));
     const mockReq: H.HttpRequest = {
       ...H.request("https://api.test.it/"),
       body: aValidBody
     };
-    const result = await makeLogoutHandler({
+    const result = await makeLockSessionHandler({
       ...httpHandlerInputMocks,
       input: mockReq,
       backendInternalClient: mockBackendInternalClient
     })();
 
-    expect(mockDeleteUserSession).toHaveBeenCalled();
-    expect(mockDeleteUserSession).toHaveBeenCalledWith({
-      fiscalcode: aValidBody.fiscal_code
+    expect(mockLockUserSession).toHaveBeenCalled();
+    expect(mockLockUserSession).toHaveBeenCalledWith({
+      fiscalcode: aValidBody.fiscal_code,
+      unlockcode: aValidBody.unlock_code
     });
     expect(E.isRight(result)).toEqual(false);
     expect(result).toMatchObject({

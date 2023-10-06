@@ -2,9 +2,9 @@ import { RequiredBodyMiddleware } from "../request";
 import * as t from "io-ts";
 import { FiscalCode, NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import * as H from "@pagopa/handler-kit";
-import { aFiscalCode } from "../../functions/__mocks__/lollipopMocks";
 import { pipe } from "fp-ts/function";
 import * as TE from "fp-ts/lib/TaskEither";
+import { aFiscalCode } from "../../functions/__mocks__/general";
 
 const sampleSchema = t.type({
   fiscalcode: FiscalCode,
