@@ -389,8 +389,7 @@ components:
       example: "192.168.1.10"
     UnlockCode:
       type: string
-      minLength: 9
-      maxLength: 9
+      pattern: ^\d{9}$
     LogoutData:
       type: object
       properties:
