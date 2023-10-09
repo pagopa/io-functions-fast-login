@@ -198,7 +198,8 @@ export const getAssertionUserIdVsCfVerifier = (
 
 export const makeFastLoginHandler: H.Handler<
   H.HttpRequest,
-  H.HttpResponse<FastLoginResponse, 200>,
+  | H.HttpResponse<FastLoginResponse, 200>
+  | H.HttpResponse<H.ProblemJson, H.HttpErrorStatusCode>,
   FnLollipopClientDependency
 > = H.of((req: H.HttpRequest) =>
   pipe(
@@ -279,7 +280,10 @@ export const makeFastLoginHandler: H.Handler<
       return StoreFastLoginAuditLogs(fastLoginAuditLogDoc, auditLogFilename);
     }),
     RTE.map(({ samlResponse }) => samlResponse),
-    RTE.map(H.successJson)
+    RTE.map(H.successJson),
+    RTE.orElseW(error =>
+      RTE.right(H.problemJson({ status: error.status, title: error.message }))
+    )
   )
 );
 

@@ -66,7 +66,7 @@ export const validateHttpSignatureWithEconding = (
 
 export const validateHttpSignature = (
   params: ValidateHttpSignatureParams
-): TE.TaskEither<Error, true> =>
+): TE.TaskEither<H.HttpUnauthorizedError, true> =>
   pipe(
     pipe(
       validateHttpSignatureWithEconding("der")(params),

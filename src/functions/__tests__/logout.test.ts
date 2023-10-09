@@ -50,9 +50,12 @@ describe("Logout handler", () => {
     })();
 
     expect(mockDeleteUserSession).not.toHaveBeenCalled();
-    expect(E.isRight(result)).toEqual(false);
+    expect(E.isRight(result)).toEqual(true);
     expect(result).toMatchObject({
-      left: { status: 400, title: "Bad Request" }
+      right: {
+        statusCode: 400,
+        body: { status: 400, title: "Missing or invalid body" }
+      }
     });
   });
 
@@ -78,9 +81,15 @@ describe("Logout handler", () => {
       })();
 
       expect(mockDeleteUserSession).toHaveBeenCalled();
-      expect(E.isRight(result)).toEqual(false);
+      expect(E.isRight(result)).toEqual(true);
       expect(result).toMatchObject({
-        left: { status: 500, title: "Internal Server Error" }
+        right: {
+          statusCode: 500,
+          body: {
+            status: 500,
+            title: `Error while deleting user session: downstream component returned ${responseCode}`
+          }
+        }
       });
     }
   );
@@ -101,9 +110,15 @@ describe("Logout handler", () => {
     expect(mockDeleteUserSession).toHaveBeenCalledWith({
       fiscalcode: aValidBody.fiscal_code
     });
-    expect(E.isRight(result)).toEqual(false);
+    expect(E.isRight(result)).toEqual(true);
     expect(result).toMatchObject({
-      left: { status: 500, title: "Internal Server Error" }
+      right: {
+        statusCode: 500,
+        body: {
+          status: 500,
+          title: "Error while calling the downstream component"
+        }
+      }
     });
   });
 
@@ -123,9 +138,15 @@ describe("Logout handler", () => {
     expect(mockDeleteUserSession).toHaveBeenCalledWith({
       fiscalcode: aValidBody.fiscal_code
     });
-    expect(E.isRight(result)).toEqual(false);
+    expect(E.isRight(result)).toEqual(true);
     expect(result).toMatchObject({
-      left: { status: 500, title: "Internal Server Error" }
+      right: {
+        statusCode: 500,
+        body: {
+          status: 500,
+          title: "Unexpected response from backend internal"
+        }
+      }
     });
   });
 });
