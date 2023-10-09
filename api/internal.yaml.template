@@ -445,9 +445,15 @@ components:
             expiration_date: 
               type: string
               format: date
+            type:
+              type: string
+              enum:
+                - LV
+                - LEGACY
           required:
             - active
             - expiration_date
+            - type
     SessionState:
       description: The state of the user' session
       type: object
