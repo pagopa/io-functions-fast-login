@@ -1,25 +1,22 @@
 import { httpAzureFunction } from "@pagopa/handler-kit-azure-func";
 import * as H from "@pagopa/handler-kit";
-import { SessionStateDependency } from "../utils/ioweb/dependency";
-import { SessionState as BackendInternalSessionStateResponse } from "../generated/definitions/backend-internal/SessionState";
-import { GetSessionStateData } from "../generated/definitions/internal/GetSessionStateData";
-import { SessionState } from "../generated/definitions/internal/SessionState";
 import { pipe } from "fp-ts/lib/function";
 import * as AP from "fp-ts/lib/Apply";
 import * as RTE from "fp-ts/lib/ReaderTaskEither";
-import { RequiredBodyMiddleware } from "../middlewares/request";
 import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
+import { RequiredBodyMiddleware } from "../middlewares/request";
+import { SessionState } from "../generated/definitions/internal/SessionState";
+import { GetSessionStateData } from "../generated/definitions/internal/GetSessionStateData";
+import { SessionState as BackendInternalSessionStateResponse } from "../generated/definitions/backend-internal/SessionState";
+import { SessionStateDependency } from "../utils/ioweb/dependency";
 
 const getUserSessionState: (
   fiscal_code: FiscalCode
 ) => RTE.ReaderTaskEither<
   SessionStateDependency,
-  | H.HttpError
-  | H.HttpBadRequestError
-  | H.HttpForbiddenError
-  | H.HttpUnauthorizedError,
+  H.HttpError,
   BackendInternalSessionStateResponse
 > = fiscal_code => ({ backendInternalClient }) =>
   pipe(
@@ -46,7 +43,8 @@ const getUserSessionState: (
 
 export const makeSessionStateHandler: H.Handler<
   H.HttpRequest,
-  H.HttpResponse<SessionState, 200>,
+  | H.HttpResponse<SessionState, 200>
+  | H.HttpResponse<H.ProblemJson, H.HttpErrorStatusCode>,
   SessionStateDependency
 > = H.of((req: H.HttpRequest) =>
   pipe(
@@ -56,7 +54,10 @@ export const makeSessionStateHandler: H.Handler<
     }),
     RTE.fromTaskEither,
     RTE.chain(({ body }) => getUserSessionState(body.fiscal_code)),
-    RTE.map(H.successJson)
+    RTE.map(H.successJson),
+    RTE.orElseW(error =>
+      RTE.right(H.problemJson({ status: error.status, title: error.message }))
+    )
   )
 );
 
