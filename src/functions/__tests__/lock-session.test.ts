@@ -51,9 +51,11 @@ describe("LockSession handler", () => {
     })();
 
     expect(mockLockUserSession).toHaveBeenCalled();
-    expect(E.isRight(result)).toEqual(false);
+    expect(E.isRight(result)).toEqual(true);
     expect(result).toMatchObject({
-      left: { status: 409, title: "Conflict" }
+      right: {
+        body: { status: 409, title: "The user lock has already been created." }
+      }
     });
   });
 
@@ -79,9 +81,14 @@ describe("LockSession handler", () => {
       })();
 
       expect(mockLockUserSession).toHaveBeenCalled();
-      expect(E.isRight(result)).toEqual(false);
+      expect(E.isRight(result)).toEqual(true);
       expect(result).toMatchObject({
-        left: { status: 500, title: "Internal Server Error" }
+        right: {
+          body: {
+            status: 500,
+            title: `Error while deleting user session: downstream component returned ${responseCode}`
+          }
+        }
       });
     }
   );
@@ -103,9 +110,14 @@ describe("LockSession handler", () => {
       fiscalcode: aValidBody.fiscal_code,
       body: { unlock_code: aValidBody.unlock_code }
     });
-    expect(E.isRight(result)).toEqual(false);
+    expect(E.isRight(result)).toEqual(true);
     expect(result).toMatchObject({
-      left: { status: 500, title: "Internal Server Error" }
+      right: {
+        body: {
+          status: 500,
+          title: "Error while calling the downstream component"
+        }
+      }
     });
   });
 
@@ -126,9 +138,14 @@ describe("LockSession handler", () => {
       fiscalcode: aValidBody.fiscal_code,
       body: { unlock_code: aValidBody.unlock_code }
     });
-    expect(E.isRight(result)).toEqual(false);
+    expect(E.isRight(result)).toEqual(true);
     expect(result).toMatchObject({
-      left: { status: 500, title: "Internal Server Error" }
+      right: {
+        body: {
+          status: 500,
+          title: "Unexpected response from backend internal"
+        }
+      }
     });
   });
 });

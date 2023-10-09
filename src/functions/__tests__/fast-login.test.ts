@@ -100,12 +100,12 @@ describe("Fast Login handler", () => {
     })();
     expect(getAssertionMock).not.toBeCalled();
     expect(mockUpsertBlobFromObject).not.toBeCalled();
-    expect(result).toEqual(
-      E.left(
-        expect.objectContaining({
+    expect(result).toMatchObject(
+      E.right({
+        body: {
           status: 400
-        })
-      )
+        }
+      })
     );
   });
 
@@ -124,12 +124,12 @@ describe("Fast Login handler", () => {
     })();
     expect(getAssertionMock).not.toBeCalled();
     expect(mockUpsertBlobFromObject).not.toBeCalled();
-    expect(result).toEqual(
-      E.left(
-        expect.objectContaining({
+    expect(result).toMatchObject(
+      E.right({
+        body: {
           status: 400
-        })
-      )
+        }
+      })
     );
   });
 
@@ -150,12 +150,12 @@ describe("Fast Login handler", () => {
     })();
     expect(getAssertionMock).not.toBeCalled();
     expect(mockUpsertBlobFromObject).not.toBeCalled();
-    expect(result).toEqual(
-      E.left(
-        expect.objectContaining({
+    expect(result).toMatchObject(
+      E.right({
+        body: {
           status: 400
-        })
-      )
+        }
+      })
     );
   });
   it(`GIVEN a invalid LolliPoP request
@@ -175,15 +175,15 @@ describe("Fast Login handler", () => {
       fnLollipopClient: mockedFnLollipopClient,
       blobService: mockBlobService
     })();
-    expect(E.isLeft(result)).toBeTruthy();
+    expect(E.isRight(result)).toBeTruthy();
     expect(getAssertionMock).not.toBeCalled();
     expect(mockUpsertBlobFromObject).not.toBeCalled();
-    if (E.isLeft(result)) {
-      expect(result.left).toEqual(
-        expect.objectContaining({
+    if (E.isRight(result)) {
+      expect(result.right).toMatchObject({
+        body: {
           status: 400
-        })
-      );
+        }
+      });
     }
   });
   it(`GIVEN a invalid LolliPoP request
@@ -203,16 +203,10 @@ describe("Fast Login handler", () => {
       fnLollipopClient: mockedFnLollipopClient,
       blobService: mockBlobService
     })();
-    expect(E.isLeft(result)).toBeTruthy();
+    expect(E.isRight(result)).toBeTruthy();
     expect(getAssertionMock).not.toBeCalled();
     expect(mockUpsertBlobFromObject).not.toBeCalled();
-    expect(result).toEqual(
-      E.left(
-        expect.objectContaining({
-          status: 401
-        })
-      )
-    );
+    expect(result).toMatchObject(E.right({ body: { status: 401 } }));
   });
   it(`GIVEN a valid LolliPoP request
       WHEN the fiscal code doesn't match with the SAML Assertion value
@@ -232,12 +226,12 @@ describe("Fast Login handler", () => {
       blobService: mockBlobService
     })();
     expect(getAssertionMock).toBeCalled();
-    expect(result).toEqual(
-      E.left(
-        expect.objectContaining({
+    expect(result).toMatchObject(
+      E.right({
+        body: {
           status: 500
-        })
-      )
+        }
+      })
     );
   });
   it.each`
@@ -267,7 +261,9 @@ describe("Fast Login handler", () => {
       })();
       expect(getAssertionMock).toBeCalled();
       expect(mockUpsertBlobFromObject).not.toBeCalled();
-      expect(result).toEqual(E.left(new H.HttpError(expectedErrorMessage)));
+      expect(result).toMatchObject(
+        E.right({ body: { title: expectedErrorMessage } })
+      );
     }
   );
 
@@ -315,9 +311,11 @@ describe("Fast Login handler", () => {
         })
       );
       expect(result).toEqual(
-        E.left(
+        E.right(
           expect.objectContaining({
-            message: expectedErrorMessage
+            body: expect.objectContaining({
+              title: expectedErrorMessage
+            })
           })
         )
       );
