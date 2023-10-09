@@ -32,7 +32,7 @@ describe("LockSession handler", () => {
     expect(mockLockUserSession).toHaveBeenCalled();
     expect(mockLockUserSession).toHaveBeenCalledWith({
       fiscalcode: aValidBody.fiscal_code,
-      unlockcode: aValidBody.unlock_code
+      body: { unlock_code: aValidBody.unlock_code }
     });
     expect(E.isRight(result)).toEqual(true);
     expect(result).toMatchObject({ right: { statusCode: 204, body: null } });
@@ -101,7 +101,7 @@ describe("LockSession handler", () => {
     expect(mockLockUserSession).toHaveBeenCalled();
     expect(mockLockUserSession).toHaveBeenCalledWith({
       fiscalcode: aValidBody.fiscal_code,
-      unlockcode: aValidBody.unlock_code
+      body: { unlock_code: aValidBody.unlock_code }
     });
     expect(E.isRight(result)).toEqual(false);
     expect(result).toMatchObject({
@@ -124,7 +124,7 @@ describe("LockSession handler", () => {
     expect(mockLockUserSession).toHaveBeenCalled();
     expect(mockLockUserSession).toHaveBeenCalledWith({
       fiscalcode: aValidBody.fiscal_code,
-      unlockcode: aValidBody.unlock_code
+      body: { unlock_code: aValidBody.unlock_code }
     });
     expect(E.isRight(result)).toEqual(false);
     expect(result).toMatchObject({
