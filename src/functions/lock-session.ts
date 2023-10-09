@@ -51,7 +51,8 @@ const lockUserSession: (
 
 export const makeLockSessionHandler: H.Handler<
   H.HttpRequest,
-  H.HttpResponse<null, 204>,
+  | H.HttpResponse<null, 204>
+  | H.HttpResponse<H.ProblemJson, H.HttpErrorStatusCode>,
   LockSessionDependency
 > = H.of((req: H.HttpRequest) =>
   pipe(
@@ -63,7 +64,10 @@ export const makeLockSessionHandler: H.Handler<
     RTE.chain(({ body }) =>
       lockUserSession(body.fiscal_code, body.unlock_code)
     ),
-    RTE.map(() => empty)
+    RTE.map(() => empty),
+    RTE.orElseW(error =>
+      RTE.right(H.problemJson({ status: error.status, title: error.message }))
+    )
   )
 );
 

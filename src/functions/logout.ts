@@ -42,7 +42,8 @@ const deleteUserSession: (
 
 export const makeLogoutHandler: H.Handler<
   H.HttpRequest,
-  H.HttpResponse<null, 204>,
+  | H.HttpResponse<null, 204>
+  | H.HttpResponse<H.ProblemJson, H.HttpErrorStatusCode>,
   LogoutDependencies
 > = H.of((req: H.HttpRequest) =>
   pipe(
@@ -52,7 +53,10 @@ export const makeLogoutHandler: H.Handler<
     }),
     RTE.fromTaskEither,
     RTE.chain(({ bodyParams }) => deleteUserSession(bodyParams.fiscal_code)),
-    RTE.map(() => H.empty)
+    RTE.map(() => H.empty),
+    RTE.orElseW(error =>
+      RTE.right(H.problemJson({ status: error.status, title: error.message }))
+    )
   )
 );
 
