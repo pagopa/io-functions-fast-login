@@ -15,6 +15,7 @@ import { FnLollipopClient } from "./utils/lollipop/dependency";
 import { createClient as backendInternalCreateClient } from "./generated/definitions/backend-internal/client";
 import { LogoutFunction } from "./functions/logout";
 import { LockSessionFunction } from "./functions/lock-session";
+import { SessionStateFunction } from "./functions/session-state";
 
 const config = getConfigOrThrow();
 
@@ -58,3 +59,4 @@ export const Info = InfoFunction({ db: database });
 export const FastLogin = FastLoginFunction({ blobService, fnLollipopClient });
 export const Logout = LogoutFunction({ backendInternalClient });
 export const LockSession = LockSessionFunction({ backendInternalClient });
+export const SessionState = SessionStateFunction({ backendInternalClient });

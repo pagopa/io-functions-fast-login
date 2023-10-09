@@ -10,7 +10,7 @@ import * as E from "fp-ts/lib/Either";
 import { LockSessionData } from "../generated/definitions/internal/LockSessionData";
 import { RequiredBodyMiddleware } from "../middlewares/request";
 import { LockSessionDependency } from "../utils/ioweb/dependency";
-import { UnlockCode } from "../generated/definitions/backend-internal/UnlockCode";
+import { UnlockCode } from "../generated/definitions/internal/UnlockCode";
 
 const lockUserSession: (
   fiscal_code: FiscalCode,
