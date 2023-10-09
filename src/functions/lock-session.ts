@@ -24,8 +24,8 @@ const lockUserSession: (
     TE.tryCatch(
       () =>
         backendInternalClient.authLock({
-          fiscalcode: fiscal_code,
-          unlockcode: unlock_code
+          body: { unlock_code },
+          fiscalcode: fiscal_code
         }),
       () => new H.HttpError("Error while calling the downstream component")
     ),
