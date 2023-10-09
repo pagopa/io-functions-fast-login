@@ -52,7 +52,10 @@ describe("Logout handler", () => {
     expect(mockDeleteUserSession).not.toHaveBeenCalled();
     expect(E.isRight(result)).toEqual(true);
     expect(result).toMatchObject({
-      right: { body: { status: 400, title: "Missing or invalid body" } }
+      right: {
+        statusCode: 400,
+        body: { status: 400, title: "Missing or invalid body" }
+      }
     });
   });
 
@@ -81,6 +84,7 @@ describe("Logout handler", () => {
       expect(E.isRight(result)).toEqual(true);
       expect(result).toMatchObject({
         right: {
+          statusCode: 500,
           body: {
             status: 500,
             title: `Error while deleting user session: downstream component returned ${responseCode}`
@@ -109,6 +113,7 @@ describe("Logout handler", () => {
     expect(E.isRight(result)).toEqual(true);
     expect(result).toMatchObject({
       right: {
+        statusCode: 500,
         body: {
           status: 500,
           title: "Error while calling the downstream component"
@@ -136,6 +141,7 @@ describe("Logout handler", () => {
     expect(E.isRight(result)).toEqual(true);
     expect(result).toMatchObject({
       right: {
+        statusCode: 500,
         body: {
           status: 500,
           title: "Unexpected response from backend internal"

@@ -54,6 +54,7 @@ describe("LockSession handler", () => {
     expect(E.isRight(result)).toEqual(true);
     expect(result).toMatchObject({
       right: {
+        statusCode: 409,
         body: { status: 409, title: "The user lock has already been created." }
       }
     });
@@ -84,6 +85,7 @@ describe("LockSession handler", () => {
       expect(E.isRight(result)).toEqual(true);
       expect(result).toMatchObject({
         right: {
+          statusCode: 500,
           body: {
             status: 500,
             title: `Error while deleting user session: downstream component returned ${responseCode}`
@@ -113,6 +115,7 @@ describe("LockSession handler", () => {
     expect(E.isRight(result)).toEqual(true);
     expect(result).toMatchObject({
       right: {
+        statusCode: 500,
         body: {
           status: 500,
           title: "Error while calling the downstream component"
@@ -141,6 +144,7 @@ describe("LockSession handler", () => {
     expect(E.isRight(result)).toEqual(true);
     expect(result).toMatchObject({
       right: {
+        statusCode: 500,
         body: {
           status: 500,
           title: "Unexpected response from backend internal"

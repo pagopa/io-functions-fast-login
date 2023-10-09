@@ -13,7 +13,7 @@ import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { BlobService } from "azure-storage";
 import * as O from "fp-ts/Option";
 import * as azureStorage from "@pagopa/io-functions-commons/dist/src/utils/azure_storage";
-import { anotherFiscalCode } from "../__mocks__/general";
+import { aFiscalCode, anotherFiscalCode } from "../__mocks__/general";
 
 const getAssertionMock = jest.fn(async () =>
   E.right({
@@ -102,8 +102,10 @@ describe("Fast Login handler", () => {
     expect(mockUpsertBlobFromObject).not.toBeCalled();
     expect(result).toMatchObject(
       E.right({
+        statusCode: 400,
         body: {
-          status: 400
+          status: 400,
+          title: "Missing or invalid LolliPoP Headers"
         }
       })
     );
@@ -126,8 +128,10 @@ describe("Fast Login handler", () => {
     expect(mockUpsertBlobFromObject).not.toBeCalled();
     expect(result).toMatchObject(
       E.right({
+        statusCode: 400,
         body: {
-          status: 400
+          status: 400,
+          title: "Missing or invalid LolliPoP Headers"
         }
       })
     );
@@ -152,8 +156,10 @@ describe("Fast Login handler", () => {
     expect(mockUpsertBlobFromObject).not.toBeCalled();
     expect(result).toMatchObject(
       E.right({
+        statusCode: 400,
         body: {
-          status: 400
+          status: 400,
+          title: "Missing or invalid LolliPoP Headers"
         }
       })
     );
@@ -180,8 +186,10 @@ describe("Fast Login handler", () => {
     expect(mockUpsertBlobFromObject).not.toBeCalled();
     if (E.isRight(result)) {
       expect(result.right).toMatchObject({
+        statusCode: 400,
         body: {
-          status: 400
+          status: 400,
+          title: "Missing or invalid LolliPoP Headers"
         }
       });
     }
@@ -206,7 +214,15 @@ describe("Fast Login handler", () => {
     expect(E.isRight(result)).toBeTruthy();
     expect(getAssertionMock).not.toBeCalled();
     expect(mockUpsertBlobFromObject).not.toBeCalled();
-    expect(result).toMatchObject(E.right({ body: { status: 401 } }));
+    expect(result).toMatchObject(
+      E.right({
+        statusCode: 401,
+        body: {
+          status: 401,
+          title: "You must provide a valid API key to access this resource."
+        }
+      })
+    );
   });
   it(`GIVEN a valid LolliPoP request
       WHEN the fiscal code doesn't match with the SAML Assertion value
@@ -228,8 +244,10 @@ describe("Fast Login handler", () => {
     expect(getAssertionMock).toBeCalled();
     expect(result).toMatchObject(
       E.right({
+        statusCode: 500,
         body: {
-          status: 500
+          status: 500,
+          title: `The provided user id do not match the fiscalNumber in the assertion: fromSaml=${aFiscalCode},fromHeader=${anotherFiscalCode}`
         }
       })
     );
@@ -262,7 +280,10 @@ describe("Fast Login handler", () => {
       expect(getAssertionMock).toBeCalled();
       expect(mockUpsertBlobFromObject).not.toBeCalled();
       expect(result).toMatchObject(
-        E.right({ body: { title: expectedErrorMessage } })
+        E.right({
+          statusCode: 500,
+          body: { status: 500, title: expectedErrorMessage }
+        })
       );
     }
   );
@@ -313,8 +334,10 @@ describe("Fast Login handler", () => {
       expect(result).toEqual(
         E.right(
           expect.objectContaining({
+            statusCode: 500,
             body: expect.objectContaining({
-              title: expectedErrorMessage
+              title: expectedErrorMessage,
+              status: 500
             })
           })
         )
