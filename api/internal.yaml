@@ -216,7 +216,10 @@ paths:
         '403':
           description: Forbidden
         '429':
-          description: Too Many Requests
+          description: |
+            Too Many Requests.
+            This response is here just for APIM handling.
+            It won't be returned by the function implemented.
         '500':
           description: Server error
           content:
