@@ -1,6 +1,6 @@
 {
   "name": "io-functions-fast-login",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "description": "Fast Login functions",
   "main": "./dist/main.js",
   "license": "MIT",
