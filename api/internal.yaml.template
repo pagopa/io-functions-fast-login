@@ -125,7 +125,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/GenerateNonceResponse'
         '401':
-          description: Not authorized
+          description: |
+            Not authorized
+            This is returned when the function key header is wrong or empty
         '500':
           description: Server error
           content:
