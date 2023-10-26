@@ -76,6 +76,17 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
+  redis:
+    container_name: redis
+    image: wodby/redis:6-3.15.4
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_TIMEOUT: 300
+      REDIS_TCP_KEEPALIVE: 60
+      REDIS_MAXMEMORY: 182m
+    networks:
+      - io-fn
 networks:
   io-fn:
     driver: bridge

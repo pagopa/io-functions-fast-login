@@ -152,7 +152,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LogoutData" 
+              $ref: "#/components/schemas/LogoutData"
       responses:
         '204':
           description: Success
@@ -178,7 +178,6 @@ paths:
           description: Bad Gateway
         '504':
           description: Gateway Timeout
-        
   /api/v1/lock-session:
     post:
       operationId: lockUserSession
@@ -297,7 +296,7 @@ paths:
           description: Bad Gateway
         '504':
           description: Gateway Timeout
-    
+
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -499,7 +498,7 @@ components:
       properties:
         access_enabled:
           type: boolean
-        session_info: 
+        session_info:
           $ref: "#/components/schemas/SessionInfo"
       required:
         - access_enabled
