@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "route": "api/v1/nonce",
+      "route": "api/v1/nonce/generate",
       "methods": [
         "post"
       ]
