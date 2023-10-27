@@ -18,7 +18,7 @@ import { LockSessionFunction } from "./functions/lock-session";
 import { SessionStateFunction } from "./functions/session-state";
 import { UnlockSessionFunction } from "./functions/unlock-session";
 import { GenerateNonceFunction } from "./functions/generate-nonce";
-import { CreateRedisClientTask } from "./utils/redis/client";
+import { CreateRedisClientSingleton } from "./utils/redis/client";
 
 const config = getConfigOrThrow();
 
@@ -58,7 +58,7 @@ const backendInternalClient = backendInternalCreateClient<"token">({
     })
 });
 
-const redisClientTask = CreateRedisClientTask(config);
+const redisClientTask = CreateRedisClientSingleton(config);
 
 export const Info = InfoFunction({ db: database });
 export const FastLogin = FastLoginFunction({ blobService, fnLollipopClient });

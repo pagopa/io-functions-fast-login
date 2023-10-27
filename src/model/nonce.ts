@@ -8,8 +8,8 @@ import {
   singleStringReply
 } from "../utils/redis/client";
 
-const NONCE_PREFIX = "NONCE-";
-const DEFAULT_NONCE_EXPIRE_SEC = 60;
+export const NONCE_PREFIX = "NONCE-";
+export const DEFAULT_NONCE_EXPIRE_SEC = 60;
 
 const prefixer = (key: string): string =>
   `${FUNCTION_PREFIX}${NONCE_PREFIX}${key}`;

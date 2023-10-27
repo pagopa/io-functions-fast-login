@@ -50,33 +50,57 @@ export const CreateRedisClientTask: (
         ),
       () => new Error("Error Connecting redis cluster")
     ),
-    TE.chain(REDIS_CLIENT => {
-      REDIS_CLIENT.on("connect", () => {
+    TE.chain(redisClient => {
+      redisClient.on("connect", () => {
         // eslint-disable-next-line no-console
         console.info("Client connected to redis...");
       });
 
-      REDIS_CLIENT.on("ready", () => {
+      redisClient.on("ready", () => {
         // eslint-disable-next-line no-console
         console.info("Client connected to redis and ready to use...");
       });
 
-      REDIS_CLIENT.on("reconnecting", () => {
+      redisClient.on("reconnecting", () => {
         // eslint-disable-next-line no-console
         console.info("Client reconnecting...");
       });
 
-      REDIS_CLIENT.on("error", err => {
+      redisClient.on("error", err => {
         // eslint-disable-next-line no-console
         console.info(`Redis error: ${err}`);
       });
 
-      REDIS_CLIENT.on("end", () => {
+      redisClient.on("end", () => {
         // eslint-disable-next-line no-console
         console.info("Client disconnected from redis");
       });
-      return TE.right(REDIS_CLIENT);
+      return TE.right(redisClient);
     })
+  );
+
+// eslint-disable-next-line functional/no-let
+let REDIS_CLIENT: redis.RedisClientType;
+
+export const CreateRedisClientSingleton = (
+  config: RedisClientConfig
+): TE.TaskEither<Error, redis.RedisClientType> =>
+  pipe(
+    TE.of(void 0),
+    TE.chainW(() =>
+      pipe(
+        REDIS_CLIENT,
+        TE.fromPredicate(
+          (_): _ is redis.RedisClientType => _ !== undefined,
+          () => new Error("asd")
+        ),
+        TE.orElseW(() => CreateRedisClientTask(config)),
+        TE.map(_ => {
+          REDIS_CLIENT = _;
+          return _;
+        })
+      )
+    )
   );
 
 export const singleStringReply = (
