@@ -4,15 +4,13 @@ import * as H from "@pagopa/handler-kit";
 import * as RTE from "fp-ts/ReaderTaskEither";
 import * as TE from "fp-ts/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
-import { toError } from "fp-ts/lib/Either";
 import * as E from "fp-ts/Either";
 import { readableReportSimplified } from "@pagopa/ts-commons/lib/reporters";
 import { GenerateNonceDependencies } from "../utils/ioweb/dependency";
 import { Nonce } from "../generated/definitions/internal/Nonce";
 import { GenerateNonceResponse } from "../generated/definitions/internal/GenerateNonceResponse";
-
-const NONCE_PREFIX = "NONCE-";
-const DEFAULT_NONCE_EXPIRE_SEC = 60;
+import { errorToHttpError } from "../utils/errors";
+import { create } from "../model/nonce";
 
 const unlockUserSession: () => RTE.ReaderTaskEither<
   GenerateNonceDependencies,
@@ -37,26 +35,8 @@ const unlockUserSession: () => RTE.ReaderTaskEither<
     TE.chainFirst(nonce =>
       pipe(
         redisClientTask,
-        TE.mapLeft(
-          err =>
-            new H.HttpError(
-              `Error connecting to the redis client: [${toError(err).message}]`
-            )
-        ),
-        TE.chain(redisClient =>
-          TE.tryCatch(
-            () =>
-              redisClient.setEx(
-                `${NONCE_PREFIX}${nonce}`,
-                DEFAULT_NONCE_EXPIRE_SEC,
-                "" // An empty string as value, we need only to store a key
-              ),
-            err =>
-              new H.HttpError(
-                `Error saving the generated nonce: [${toError(err).message}]`
-              )
-          )
-        )
+        TE.mapLeft(errorToHttpError),
+        TE.chain(flow(create(nonce), TE.mapLeft(errorToHttpError)))
       )
     )
   );

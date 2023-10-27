@@ -3,6 +3,8 @@ import * as TE from "fp-ts/TaskEither";
 import { pipe } from "fp-ts/lib/function";
 import { RedisClientConfig } from "../../config";
 
+export const FUNCTION_PREFIX = "FNFASTLOGIN-";
+
 export const createSimpleRedisClient = async (
   redisUrl: string,
   password?: string,
@@ -75,4 +77,20 @@ export const CreateRedisClientTask: (
       });
       return TE.right(REDIS_CLIENT);
     })
+  );
+
+export const singleStringReply = (
+  command: TE.TaskEither<Error, string | null>
+): TE.TaskEither<Error, boolean> =>
+  pipe(
+    command,
+    TE.map(reply => reply === "OK")
+  );
+
+export const falsyResponseToErrorAsync = (error: Error) => (
+  response: TE.TaskEither<Error, boolean>
+): TE.TaskEither<Error, true> =>
+  pipe(
+    response,
+    TE.chain(_ => (_ ? TE.right(_) : TE.left(error)))
   );
