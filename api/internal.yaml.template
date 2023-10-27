@@ -133,7 +133,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProblemJson'
+                $ref: '#/components/schemas/InternalServerError'
         '502':
           description: Bad Gateway
         '504':
