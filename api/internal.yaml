@@ -120,7 +120,7 @@ paths:
     post:
       operationId: generateNonce
       responses:
-        '200':
+        '201':
           description: Success
           content:
             application/json:
@@ -136,6 +136,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemJson'
+        '502':
+          description: Bad Gateway
+        '504':
+          description: Gateway Timeout
   /api/v1/logout:
     post:
       operationId: logoutFromIOApp
