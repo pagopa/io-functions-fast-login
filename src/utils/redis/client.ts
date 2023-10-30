@@ -82,6 +82,15 @@ export const CreateRedisClientTask: (
 // eslint-disable-next-line functional/no-let
 let REDIS_CLIENT: redis.RedisClientType;
 
+/**
+ * Create a TaskEither that evaluate REDIS_CLIENT at runtime.
+ * When REDIS_CLIENT is defined it's returned as result, otherwhise
+ * a new Redis Client will be created and REDIS_CLIENT defined
+ * for the future requests.
+ *
+ * @param config
+ * @returns
+ */
 export const CreateRedisClientSingleton = (
   config: RedisClientConfig
 ): TE.TaskEither<Error, redis.RedisClientType> =>
@@ -91,14 +100,12 @@ export const CreateRedisClientSingleton = (
       pipe(
         REDIS_CLIENT,
         TE.fromPredicate(
-          (_): _ is redis.RedisClientType => _ !== undefined,
-          () => new Error("asd")
+          (maybeRedisCliend): maybeRedisCliend is redis.RedisClientType =>
+            maybeRedisCliend !== undefined,
+          () => void 0 // Redis Client not yet instantiated
         ),
         TE.orElseW(() => CreateRedisClientTask(config)),
-        TE.map(_ => {
-          REDIS_CLIENT = _;
-          return _;
-        })
+        TE.map(newRedisClient => (REDIS_CLIENT = newRedisClient))
       )
     )
   );
@@ -116,5 +123,5 @@ export const falsyResponseToErrorAsync = (error: Error) => (
 ): TE.TaskEither<Error, true> =>
   pipe(
     response,
-    TE.chain(_ => (_ ? TE.right(_) : TE.left(error)))
+    TE.chain(value => (value ? TE.right(value) : TE.left(error)))
   );

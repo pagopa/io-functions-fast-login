@@ -21,6 +21,8 @@ describe("redisClient creation on startup", () => {
       REDIS_URL: "redis" as NonEmptyString,
       REDIS_TLS_ENABLED: false
     });
+
+    // 4 different request executes each a redisClientTask
     const redisClient = await pipe(
       redisClientTask,
       TE.chain(() => redisClientTask),
