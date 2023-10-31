@@ -7,12 +7,12 @@ import { flow, pipe } from "fp-ts/lib/function";
 import * as E from "fp-ts/Either";
 import { readableReportSimplified } from "@pagopa/ts-commons/lib/reporters";
 import { GenerateNonceDependencies } from "../utils/ioweb/dependency";
-import { Nonce } from "../generated/definitions/internal/Nonce";
+import { Nonce } from "../generated/definitions/models/Nonce";
 import { GenerateNonceResponse } from "../generated/definitions/internal/GenerateNonceResponse";
 import { errorToHttpError } from "../utils/errors";
 import { create } from "../model/nonce";
 
-const unlockUserSession: () => RTE.ReaderTaskEither<
+const generateNonce: () => RTE.ReaderTaskEither<
   GenerateNonceDependencies,
   H.HttpError,
   Nonce
@@ -49,7 +49,7 @@ export const makeGenerateNonce: H.Handler<
 > = H.of((req: H.HttpRequest) =>
   pipe(
     req,
-    unlockUserSession,
+    generateNonce,
     RTE.map(nonce => H.successJson({ nonce })),
     RTE.orElseW(error =>
       RTE.right(H.problemJson({ status: error.status, title: error.message }))

@@ -461,12 +461,6 @@ components:
     LollipopSignature:
       type: string
       pattern: ^((sig[0-9]+)=:[A-Za-z0-9+/=]*:(, ?)?)+$
-    Nonce:
-      type: string
-      pattern: >-
-        ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-      description: UUID v4 formatted nonce as per RFC 4122
-      example: 870c6d89-a3c4-48b1-a796-cdacddaf94b4
     GenerateNonceResponse:
       type: object
       properties:
@@ -558,3 +552,9 @@ components:
       required:
         - access_enabled
         - session_info
+    Nonce:
+      type: string
+      pattern: >-
+        ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+      description: UUID v4 formatted nonce as per RFC 4122
+      example: 870c6d89-a3c4-48b1-a796-cdacddaf94b4

@@ -7,14 +7,15 @@ import {
   falsyResponseToErrorAsync,
   singleStringReply
 } from "../utils/redis/client";
+import { Nonce } from "../generated/definitions/models/Nonce";
 
 export const NONCE_PREFIX = "NONCE-";
 export const DEFAULT_NONCE_EXPIRE_SEC = 60;
 
-const prefixer = (key: string): string =>
+const prefixer = (key: Nonce): string =>
   `${FUNCTION_PREFIX}${NONCE_PREFIX}${key}`;
 
-export const create = (nonce: string) => (
+export const create = (nonce: Nonce) => (
   redisClient: redis.RedisClientType
 ): TE.TaskEither<Error, boolean> =>
   pipe(
