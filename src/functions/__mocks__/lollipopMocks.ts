@@ -19,8 +19,10 @@ import { aFiscalCode } from "./general";
 
 export const anAssertionRef = "sha256-iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU" as AssertionRef;
 
-export const aLollipopSignature = "sig1=:J3zFtKVaXA4mn7dcQbd0+jHoI7peLuuq2FL5Lswllhn+cEWpjbOKxX1kkLtDtWJnZOaJePI6f+feUSfwb2VEGA==:" as LollipopSignature;
-export const aLollipopSignatureInput = 'sig1=("x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url");created=1689156528;nonce="aNonce";alg="ecdsa-p256-sha256";keyid="iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU"' as LollipopSignatureInput;
+export const aNonce = "195ace7b-1262-4a70-b520-7fbae5305a26";
+export const fastLoginUrl = "https://api-app.io.pagopa.it/api/v1/fast-login" as LollipopOriginalURL;
+export const aLollipopSignature = "sig1=:GPJHMjxsyAB29V271sW6yozbM6gskQ4Jr0HtJzwmiM7Bsm09i5dRhWc0zIDbuWAU/bJmX4FX/CTeWL9Q5ivCTw==:" as LollipopSignature;
+export const aLollipopSignatureInput = `sig1=("x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url");created=1698315748;nonce="${aNonce}";alg="ecdsa-p256-sha256";keyid="iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU"` as LollipopSignatureInput;
 
 export const aLollipopInvalidSignature = "sig1=:lTuoRytp53GuUMOB4Rz1z97Y96gfSeEOm/xVpO39d3HR6lLAy4KYiGq+1hZ7nmRFBt2bASWEpen7ov5O4wU3kQ==:" as LollipopSignature;
 
@@ -40,7 +42,7 @@ export const aValidJwk: JwkPublicKey = {
 export const toEncodedJwk = (jwk: JwkPublicKey) =>
   jose.base64url.encode(JSON.stringify(jwk)) as NonEmptyString;
 
-export const validLollipopHeaders: LollipopHeaders = {
+export const validLollipopHeaders = {
   ["x-pagopa-lollipop-assertion-ref"]: anAssertionRef,
   ["x-pagopa-lollipop-assertion-type"]: AssertionTypeEnum.SAML,
   ["x-pagopa-lollipop-user-id"]: aFiscalCode,
@@ -50,7 +52,7 @@ export const validLollipopHeaders: LollipopHeaders = {
   // verified header
   // ---------
   ["x-pagopa-lollipop-original-method"]: LollipopMethodEnum.POST,
-  ["x-pagopa-lollipop-original-url"]: "https://api-app.io.pagopa.it/api/v1/fast-login" as LollipopOriginalURL,
+  ["x-pagopa-lollipop-original-url"]: fastLoginUrl,
   ["signature"]: aLollipopSignature,
   ["signature-input"]: aLollipopSignatureInput
 };

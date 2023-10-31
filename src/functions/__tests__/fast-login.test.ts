@@ -5,6 +5,7 @@ import * as E from "fp-ts/Either";
 import { FnLollipopClient } from "../../utils/lollipop/dependency";
 import {
   aLollipopInvalidSignature,
+  aNonce,
   aSAMLResponse,
   validFastLoginAdditionalHeaders,
   validLollipopHeaders
@@ -14,6 +15,10 @@ import { BlobService } from "azure-storage";
 import * as O from "fp-ts/Option";
 import * as azureStorage from "@pagopa/io-functions-commons/dist/src/utils/azure_storage";
 import { aFiscalCode, anotherFiscalCode } from "../__mocks__/general";
+import * as TE from "fp-ts/lib/TaskEither";
+import type {RedisClientType} from "redis" 
+import * as mattrglobalUtils from "@mattrglobal/http-signatures/lib/verify/verifySignatureHeader"
+import {okAsync,errAsync} from "neverthrow"
 
 const getAssertionMock = jest.fn(async () =>
   E.right({
@@ -35,6 +40,14 @@ const mockUpsertBlobFromObject = jest
     )
   );
 
+const mockRedisDel = jest.fn().mockResolvedValue(1);
+const mockRedisClient = TE.right({
+  del: mockRedisDel
+}as unknown as RedisClientType) ;
+
+
+const mockValidateSignature=jest.spyOn(mattrglobalUtils,"verifySignatureHeader").mockResolvedValue(okAsync({verified:true}))
+
 describe("Fast Login handler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -53,8 +66,12 @@ describe("Fast Login handler", () => {
       ...httpHandlerInputMocks,
       input: req,
       fnLollipopClient: mockedFnLollipopClient,
-      blobService: mockBlobService
+      blobService: mockBlobService,
+      redisClientTask: mockRedisClient
     })();
+    expect(mockValidateSignature).toHaveBeenCalled();
+    expect(mockRedisDel).toHaveBeenCalled();
+    expect(mockRedisDel).toHaveBeenCalledWith(aNonce);
     expect(getAssertionMock).toBeCalled();
     expect(mockUpsertBlobFromObject).toBeCalled();
     expect(mockUpsertBlobFromObject).toBeCalledWith(
@@ -96,8 +113,11 @@ describe("Fast Login handler", () => {
       ...httpHandlerInputMocks,
       input: req,
       fnLollipopClient: mockedFnLollipopClient,
-      blobService: mockBlobService
+      blobService: mockBlobService,
+      redisClientTask: mockRedisClient
     })();
+    expect(mockValidateSignature).not.toHaveBeenCalled();
+    expect(mockRedisDel).not.toHaveBeenCalled();
     expect(getAssertionMock).not.toBeCalled();
     expect(mockUpsertBlobFromObject).not.toBeCalled();
     expect(result).toMatchObject(
@@ -122,8 +142,11 @@ describe("Fast Login handler", () => {
       ...httpHandlerInputMocks,
       input: req,
       fnLollipopClient: mockedFnLollipopClient,
-      blobService: mockBlobService
+      blobService: mockBlobService,
+      redisClientTask: mockRedisClient
     })();
+    expect(mockValidateSignature).not.toHaveBeenCalled();
+    expect(mockRedisDel).not.toHaveBeenCalled();
     expect(getAssertionMock).not.toBeCalled();
     expect(mockUpsertBlobFromObject).not.toBeCalled();
     expect(result).toMatchObject(
@@ -150,8 +173,11 @@ describe("Fast Login handler", () => {
       ...httpHandlerInputMocks,
       input: req,
       fnLollipopClient: mockedFnLollipopClient,
-      blobService: mockBlobService
+      blobService: mockBlobService,
+      redisClientTask: mockRedisClient
     })();
+    expect(mockValidateSignature).not.toHaveBeenCalled();
+    expect(mockRedisDel).not.toHaveBeenCalled();
     expect(getAssertionMock).not.toBeCalled();
     expect(mockUpsertBlobFromObject).not.toBeCalled();
     expect(result).toMatchObject(
@@ -179,9 +205,12 @@ describe("Fast Login handler", () => {
       ...httpHandlerInputMocks,
       input: req,
       fnLollipopClient: mockedFnLollipopClient,
-      blobService: mockBlobService
+      blobService: mockBlobService,
+      redisClientTask: mockRedisClient
     })();
     expect(E.isRight(result)).toBeTruthy();
+    expect(mockValidateSignature).not.toHaveBeenCalled();
+    expect(mockRedisDel).not.toHaveBeenCalled();
     expect(getAssertionMock).not.toBeCalled();
     expect(mockUpsertBlobFromObject).not.toBeCalled();
     if (E.isRight(result)) {
@@ -197,6 +226,8 @@ describe("Fast Login handler", () => {
   it(`GIVEN a invalid LolliPoP request
       WHEN the signature is invalid
       THEN a Unauthorize Request error response is returned`, async () => {
+    mockValidateSignature.mockResolvedValueOnce(errAsync({type:"Error",message:""}))
+    mockValidateSignature.mockResolvedValueOnce(errAsync({type:"Error",message:""}))
     const req: H.HttpRequest = {
       ...H.request("https://api.test.it/"),
       headers: {
@@ -209,9 +240,12 @@ describe("Fast Login handler", () => {
       ...httpHandlerInputMocks,
       input: req,
       fnLollipopClient: mockedFnLollipopClient,
-      blobService: mockBlobService
+      blobService: mockBlobService,
+      redisClientTask: mockRedisClient
     })();
     expect(E.isRight(result)).toBeTruthy();
+    expect(mockValidateSignature).toHaveBeenCalled();
+    expect(mockRedisDel).not.toHaveBeenCalled();
     expect(getAssertionMock).not.toBeCalled();
     expect(mockUpsertBlobFromObject).not.toBeCalled();
     expect(result).toMatchObject(
@@ -239,8 +273,12 @@ describe("Fast Login handler", () => {
       ...httpHandlerInputMocks,
       input: req,
       fnLollipopClient: mockedFnLollipopClient,
-      blobService: mockBlobService
+      blobService: mockBlobService,
+      redisClientTask: mockRedisClient
     })();
+    expect(mockValidateSignature).toHaveBeenCalled();
+    expect(mockRedisDel).toHaveBeenCalled();
+    expect(mockRedisDel).toHaveBeenCalledWith(aNonce)
     expect(getAssertionMock).toBeCalled();
     expect(result).toMatchObject(
       E.right({
@@ -275,8 +313,12 @@ describe("Fast Login handler", () => {
         ...httpHandlerInputMocks,
         input: req,
         fnLollipopClient: mockedFnLollipopClient,
-        blobService: mockBlobService
+        blobService: mockBlobService,
+        redisClientTask: mockRedisClient
       })();
+      expect(mockValidateSignature).toHaveBeenCalled();
+      expect(mockRedisDel).toHaveBeenCalled();
+      expect(mockRedisDel).toHaveBeenCalledWith(aNonce)
       expect(getAssertionMock).toBeCalled();
       expect(mockUpsertBlobFromObject).not.toBeCalled();
       expect(result).toMatchObject(
@@ -316,8 +358,12 @@ describe("Fast Login handler", () => {
         ...httpHandlerInputMocks,
         input: req,
         fnLollipopClient: mockedFnLollipopClient,
-        blobService: mockBlobService
+        blobService: mockBlobService,
+        redisClientTask: mockRedisClient
       })();
+      expect(mockValidateSignature).toHaveBeenCalled();
+      expect(mockRedisDel).toHaveBeenCalled();
+      expect(mockRedisDel).toHaveBeenCalledWith(aNonce)
       expect(getAssertionMock).toBeCalled();
       expect(mockUpsertBlobFromObject).toBeCalled();
       expect(mockUpsertBlobFromObject).toBeCalledWith(
@@ -344,4 +390,113 @@ describe("Fast Login handler", () => {
       );
     }
   );
+
+  it(`GIVEN a valid LolliPoP request 
+      WHEN the nonce is missing 
+      THEN an unauthorized error is returned`,async ()=>{
+      const req: H.HttpRequest = {
+        ...H.request("https://api.test.it/"),
+        headers: {
+          ...validLollipopHeaders,
+          ...validFastLoginAdditionalHeaders,
+          ["signature-input"]:`sig1=("x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url");created=1698315748;alg="ecdsa-p256-sha256";keyid="iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU"`,
+        }
+      };
+      const result = await makeFastLoginHandler({
+        ...httpHandlerInputMocks,
+        input: req,
+        fnLollipopClient: mockedFnLollipopClient,
+        blobService: mockBlobService,
+        redisClientTask: mockRedisClient
+      })();
+      expect(mockValidateSignature).toHaveBeenCalled();
+      expect(mockRedisDel).not.toHaveBeenCalled();
+      expect(getAssertionMock).not.toHaveBeenCalled();
+      expect(mockUpsertBlobFromObject).not.toHaveBeenCalled();
+      expect(mockUpsertBlobFromObject).not.toHaveBeenCalled();
+      expect(result).toEqual(
+        E.right(
+          expect.objectContaining({
+            statusCode: 401,
+            body: expect.objectContaining({
+              title: "You must provide a valid API key to access this resource.",
+              status: 401
+            })
+          })
+        )
+      );
+
+    })
+
+  it(`GIVEN a valid LolliPoP request 
+      WHEN the nonce decode fails 
+      THEN an unauthorized error is returned`,async ()=>{
+      const req: H.HttpRequest = {
+        ...H.request("https://api.test.it/"),
+        headers: {
+          ...validLollipopHeaders,
+          ...validFastLoginAdditionalHeaders,
+          ["signature-input"]:`sig1=("x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url");created=1698315748;nonce="WRONG-NONCE";alg="ecdsa-p256-sha256";keyid="iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU"`,
+        }
+      };
+      const result = await makeFastLoginHandler({
+        ...httpHandlerInputMocks,
+        input: req,
+        fnLollipopClient: mockedFnLollipopClient,
+        blobService: mockBlobService,
+        redisClientTask: mockRedisClient
+      })();
+      expect(mockValidateSignature).toHaveBeenCalled();
+      expect(mockRedisDel).not.toHaveBeenCalled();
+      expect(getAssertionMock).not.toHaveBeenCalled();
+      expect(mockUpsertBlobFromObject).not.toHaveBeenCalled();
+      expect(mockUpsertBlobFromObject).not.toHaveBeenCalled();
+      expect(result).toEqual(
+        E.right(
+          expect.objectContaining({
+            statusCode: 401,
+            body: expect.objectContaining({
+              title: "You must provide a valid API key to access this resource.",
+              status: 401
+            })
+          })
+        )
+      );
+    })
+
+  it(`GIVEN an valid LolliPoP request 
+    WHEN the nonce delete fails because of redis connection error 
+    THEN an intenral error is returned`,async ()=>{
+      const anError="anError"
+      const req: H.HttpRequest = {
+        ...H.request("https://api.test.it/"),
+        headers: {
+          ...validLollipopHeaders,
+          ...validFastLoginAdditionalHeaders,
+        }
+      };
+      const result = await makeFastLoginHandler({
+        ...httpHandlerInputMocks,
+        input: req,
+        fnLollipopClient: mockedFnLollipopClient,
+        blobService: mockBlobService,
+        redisClientTask: TE.left(new Error(anError))
+      })();
+      expect(mockValidateSignature).toHaveBeenCalled();
+      expect(mockRedisDel).not.toHaveBeenCalled();
+      expect(getAssertionMock).not.toHaveBeenCalled();
+      expect(mockUpsertBlobFromObject).not.toHaveBeenCalled();
+      expect(mockUpsertBlobFromObject).not.toHaveBeenCalled();
+      expect(result).toEqual(
+        E.right(
+          expect.objectContaining({
+            statusCode: 500,
+            body: expect.objectContaining({
+              title: `Could not connect to database: [${anError}]`,
+              status: 500
+            })
+          })
+        )
+      );
+    })
 });

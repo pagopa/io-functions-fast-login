@@ -40,6 +40,7 @@ import {
 import { LollipopAuthBearer } from "../generated/definitions/fn-lollipop/LollipopAuthBearer";
 import { validateHttpSignature } from "../utils/lollipop/crypto";
 import { AssertionRef } from "../generated/definitions/fn-lollipop/AssertionRef";
+import { getDeleteNonce, getNonceFromSignatureInput } from "../model/nonce";
 
 /**
  * Retrieve the corrisponding SAMLResponse from the `io-fn-lollipop` related to a specific Lollipop sign request.
@@ -196,6 +197,39 @@ export const getAssertionUserIdVsCfVerifier = (
     TE.map(() => true as const)
   );
 
+const deleteNonce: (
+  lollipopHeaders: LollipopHeaders
+) => RTE.ReaderTaskEither<
+  FnLollipopClientDependency,
+  H.HttpError | H.HttpUnauthorizedError,
+  true
+> = lollipopHeaders => ({ redisClientTask }) =>
+  pipe(
+    TE.Do,
+    TE.bind("redisClient", () =>
+      pipe(
+        redisClientTask,
+        TE.mapLeft(
+          error =>
+            new H.HttpError(`Could not connect to database: [${error.message}]`)
+        )
+      )
+    ),
+    TE.chainW(({ redisClient }) =>
+      pipe(
+        getNonceFromSignatureInput(lollipopHeaders["signature-input"]),
+        TE.fromEither,
+        TE.chain(getDeleteNonce(redisClient)),
+        TE.mapLeft(
+          error =>
+            new H.HttpUnauthorizedError(
+              `Could not delete nonce [${error.message}]`
+            )
+        )
+      )
+    )
+  );
+
 export const makeFastLoginHandler: H.Handler<
   H.HttpRequest,
   | H.HttpResponse<FastLoginResponse, 200>
@@ -225,6 +259,9 @@ export const makeFastLoginHandler: H.Handler<
     ),
     RTE.fromTaskEither,
     RTE.bindTo("verifiedHeaders"),
+    RTE.chainFirst(({ verifiedHeaders }) =>
+      deleteNonce(verifiedHeaders.lollipopHeaders)
+    ),
     RTE.bindW("samlResponse", ({ verifiedHeaders }) =>
       RetrieveSAMLResponse(verifiedHeaders.lollipopHeaders)
     ),
