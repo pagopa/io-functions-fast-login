@@ -41,7 +41,7 @@ import { LollipopAuthBearer } from "../generated/definitions/fn-lollipop/Lollipo
 import { validateHttpSignature } from "../utils/lollipop/crypto";
 import { AssertionRef } from "../generated/definitions/fn-lollipop/AssertionRef";
 import { getDeleteNonce, getNonceFromSignatureInput } from "../model/nonce";
-import { CustomHttpUnauthorizedError } from "../utils/errors";
+import { CustomHttpUnauthorizedError, errorToHttpError } from "../utils/errors";
 
 /**
  * Retrieve the corrisponding SAMLResponse from the `io-fn-lollipop` related to a specific Lollipop sign request.
@@ -208,13 +208,7 @@ const deleteNonce: (
   pipe(
     TE.Do,
     TE.bind("redisClient", () =>
-      pipe(
-        redisClientTask,
-        TE.mapLeft(
-          error =>
-            new H.HttpError(`Could not connect to database: [${error.message}]`)
-        )
-      )
+      pipe(redisClientTask, TE.mapLeft(errorToHttpError))
     ),
     TE.chainW(({ redisClient }) =>
       pipe(

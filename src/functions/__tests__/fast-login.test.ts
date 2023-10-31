@@ -468,7 +468,7 @@ describe("Fast Login handler", () => {
   it(`GIVEN an valid LolliPoP request 
     WHEN the nonce delete fails because of redis connection error 
     THEN an internal error is returned`,async ()=>{
-      const anError="anError"
+      const anError="dbError"
       const req: H.HttpRequest = {
         ...H.request("https://api.test.it/"),
         headers: {
@@ -493,7 +493,7 @@ describe("Fast Login handler", () => {
           expect.objectContaining({
             statusCode: 500,
             body: expect.objectContaining({
-              title: `Could not connect to database: [${anError}]`,
+              title: `Internal Server Error: ${anError}`,
               status: 500
             })
           })
