@@ -19,6 +19,7 @@ import * as TE from "fp-ts/lib/TaskEither";
 import type {RedisClientType} from "redis" 
 import * as mattrglobalUtils from "@mattrglobal/http-signatures/lib/verify/verifySignatureHeader"
 import {okAsync,errAsync} from "neverthrow"
+import { prefixer } from "../../model/nonce"
 
 const getAssertionMock = jest.fn(async () =>
   E.right({
@@ -71,7 +72,7 @@ describe("Fast Login handler", () => {
     })();
     expect(mockValidateSignature).toHaveBeenCalled();
     expect(mockRedisDel).toHaveBeenCalled();
-    expect(mockRedisDel).toHaveBeenCalledWith(aNonce);
+    expect(mockRedisDel).toHaveBeenCalledWith(prefixer(aNonce));
     expect(getAssertionMock).toBeCalled();
     expect(mockUpsertBlobFromObject).toBeCalled();
     expect(mockUpsertBlobFromObject).toBeCalledWith(
@@ -253,7 +254,7 @@ describe("Fast Login handler", () => {
         statusCode: 401,
         body: {
           status: 401,
-          title: "Invalid Lollipop signature"
+          title: "Invalid Lollipop Signature"
         }
       })
     );
@@ -278,7 +279,7 @@ describe("Fast Login handler", () => {
     })();
     expect(mockValidateSignature).toHaveBeenCalled();
     expect(mockRedisDel).toHaveBeenCalled();
-    expect(mockRedisDel).toHaveBeenCalledWith(aNonce)
+    expect(mockRedisDel).toHaveBeenCalledWith(prefixer(aNonce))
     expect(getAssertionMock).toBeCalled();
     expect(result).toMatchObject(
       E.right({
@@ -318,7 +319,7 @@ describe("Fast Login handler", () => {
       })();
       expect(mockValidateSignature).toHaveBeenCalled();
       expect(mockRedisDel).toHaveBeenCalled();
-      expect(mockRedisDel).toHaveBeenCalledWith(aNonce)
+      expect(mockRedisDel).toHaveBeenCalledWith(prefixer(aNonce))
       expect(getAssertionMock).toBeCalled();
       expect(mockUpsertBlobFromObject).not.toBeCalled();
       expect(result).toMatchObject(
@@ -363,7 +364,7 @@ describe("Fast Login handler", () => {
       })();
       expect(mockValidateSignature).toHaveBeenCalled();
       expect(mockRedisDel).toHaveBeenCalled();
-      expect(mockRedisDel).toHaveBeenCalledWith(aNonce)
+      expect(mockRedisDel).toHaveBeenCalledWith(prefixer(aNonce))
       expect(getAssertionMock).toBeCalled();
       expect(mockUpsertBlobFromObject).toBeCalled();
       expect(mockUpsertBlobFromObject).toBeCalledWith(

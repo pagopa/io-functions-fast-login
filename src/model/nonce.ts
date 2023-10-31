@@ -17,7 +17,7 @@ const nonceRegex = new RegExp('nonce="(.*?)"');
 export const NONCE_PREFIX = "NONCE-";
 export const DEFAULT_NONCE_EXPIRE_SEC = 60;
 
-const prefixer = (key: Nonce): string =>
+export const prefixer = (key: Nonce): string =>
   `${FUNCTION_PREFIX}${NONCE_PREFIX}${key}`;
 
 export const create = (nonce: Nonce) => (
@@ -47,7 +47,7 @@ export const getNonceFromSignatureInput = (
     // take out only the first group of the match
     O.chainNullableK(matchArray => matchArray.at(1)),
     O.fold(
-      () => E.left(new Error("Could not retrieve nonce from signature-input")),
+      () => E.left(new Error("Could not retrieve nonce from signature-input.")),
       flow(
         Nonce.decode,
         E.mapLeft(
@@ -67,11 +67,11 @@ type GetDeleteNonceT = (
 ) => (nonce: Nonce) => TE.TaskEither<Error, true>;
 export const getDeleteNonce: GetDeleteNonceT = redis_client => nonce =>
   pipe(
-    TE.tryCatch(() => redis_client.del(nonce), E.toError),
+    TE.tryCatch(() => redis_client.del(prefixer(nonce)), E.toError),
     TE.chain(
       TE.fromPredicate(
         reply => reply === 1,
-        _ => new Error(`Unexpected response from redis client| Deleted 0 keys`)
+        _ => new Error(`Unexpected response from redis client: Deleted 0 keys`)
       )
     ),
     TE.map(_ => true as const)
