@@ -3,7 +3,7 @@ version: "3.2"
 services:
 
   fast-login-fn:
-    image: functions-template:v2.0.0
+    image: functions-fast-login
     build:
       context: ./
       dockerfile: docker/functions/Dockerfile

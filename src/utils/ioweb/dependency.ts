@@ -1,6 +1,5 @@
-import * as redis from "redis";
-import * as TE from "fp-ts/TaskEither";
 import { Client } from "../../generated/definitions/backend-internal/client";
+import { RedisDependency } from "../redis/dependency";
 
 export type SessionStateDependency = LogoutDependencies;
 export type LockSessionDependency = LogoutDependencies;
@@ -10,6 +9,4 @@ export type LogoutDependencies = {
   readonly backendInternalClient: Client<"token">;
 };
 
-export type GenerateNonceDependencies = {
-  readonly redisClientTask: TE.TaskEither<Error, redis.RedisClientType>;
-};
+export type GenerateNonceDependencies = RedisDependency;

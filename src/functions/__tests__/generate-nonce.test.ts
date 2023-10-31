@@ -1,16 +1,11 @@
 import * as H from "@pagopa/handler-kit";
 import { makeGenerateNonce } from "../generate-nonce";
 import { httpHandlerInputMocks } from "../__mocks__/handlerMocks";
-import * as TE from "fp-ts/TaskEither";
-import * as redis from "redis";
 import { DEFAULT_NONCE_EXPIRE_SEC, NONCE_PREFIX } from "../../model/nonce";
 import { FUNCTION_PREFIX } from "../../utils/redis/client";
 import * as E from "fp-ts/Either";
+import { mockRedisClientTask, mockSetEx } from "../__mocks__/redis";
 
-const mockSetEx = jest.fn().mockImplementation(() => Promise.resolve("OK"));
-const mockRedisClientTask = TE.of(({
-  setEx: mockSetEx
-} as unknown) as redis.RedisClientType);
 describe("UnlockSession handler", () => {
   beforeEach(() => {
     jest.clearAllMocks();

@@ -12,6 +12,9 @@ import {
 } from "../utils/cosmos/health-check";
 import { ApplicationInfo } from "../generated/definitions/internal/ApplicationInfo";
 import { CosmosDBDependency } from "../utils/cosmos/dependency";
+import { RedisDependency } from "../utils/redis/dependency";
+import { makeRedisDBHealthCheck } from "../utils/redis/health-check";
+import { HealthCheckBuilder } from "../utils/health-check";
 type ProblemSource = AzureCosmosProblemSource;
 const applicativeValidation = RTE.getApplicativeReaderTaskValidation(
   Task.ApplicativePar,
@@ -21,11 +24,13 @@ const applicativeValidation = RTE.getApplicativeReaderTaskValidation(
 export const makeInfoHandler: H.Handler<
   H.HttpRequest,
   H.HttpResponse<ApplicationInfo, 200>,
-  CosmosDBDependency
+  CosmosDBDependency & RedisDependency
 > = H.of((_: H.HttpRequest) =>
   pipe(
     // TODO: Add all the function health checks
-    [makeAzureCosmosDbHealthCheck],
+    [makeAzureCosmosDbHealthCheck, makeRedisDBHealthCheck] as ReadonlyArray<
+      HealthCheckBuilder
+    >,
     RA.sequence(applicativeValidation),
     RTE.map(() => H.successJson({ message: "it works!" })),
     RTE.mapLeft(problems => new H.HttpError(problems.join("\n\n")))

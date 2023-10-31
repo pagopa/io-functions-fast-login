@@ -60,7 +60,7 @@ const backendInternalClient = backendInternalCreateClient<"token">({
 
 const redisClientTask = CreateRedisClientSingleton(config);
 
-export const Info = InfoFunction({ db: database });
+export const Info = InfoFunction({ db: database, redisClientTask });
 export const FastLogin = FastLoginFunction({ blobService, fnLollipopClient });
 export const Logout = LogoutFunction({ backendInternalClient });
 export const LockSession = LockSessionFunction({ backendInternalClient });
