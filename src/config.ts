@@ -34,6 +34,18 @@ const BackendInternalConfig = t.type({
 });
 type BackendInternalConfig = t.TypeOf<typeof BackendInternalConfig>;
 
+const RedisClientConfig = t.intersection([
+  t.type({
+    REDIS_TLS_ENABLED: withDefault(t.boolean, true),
+    REDIS_URL: NonEmptyString
+  }),
+  t.partial({
+    REDIS_PASSWORD: NonEmptyString,
+    REDIS_PORT: NonEmptyString
+  })
+]);
+export type RedisClientConfig = t.TypeOf<typeof RedisClientConfig>;
+
 export type IConfig = t.TypeOf<typeof IConfig>;
 export const IConfig = t.intersection([
   t.interface({
@@ -50,11 +62,15 @@ export const IConfig = t.intersection([
     isProduction: t.boolean
   }),
   BackendInternalConfig,
-  GetAssertionConfig
+  GetAssertionConfig,
+  RedisClientConfig
 ]);
 
 export const envConfig = {
   ...process.env,
+  REDIS_TLS_ENABLED:
+    process.env.REDIS_TLS_ENABLED &&
+    process.env.REDIS_TLS_ENABLED.toLowerCase() === "true",
   isProduction: process.env.NODE_ENV === "production"
 };
 
