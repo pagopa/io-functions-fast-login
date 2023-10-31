@@ -6,7 +6,7 @@ import { FUNCTION_PREFIX } from "../../utils/redis/client";
 import * as E from "fp-ts/Either";
 import { mockRedisClientTask, mockSetEx } from "../__mocks__/redis";
 
-describe("UnlockSession handler", () => {
+describe("GenerateNonce handler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });

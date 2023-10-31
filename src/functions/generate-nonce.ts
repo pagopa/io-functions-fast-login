@@ -6,14 +6,14 @@ import * as TE from "fp-ts/TaskEither";
 import { flow, pipe } from "fp-ts/lib/function";
 import * as E from "fp-ts/Either";
 import { readableReportSimplified } from "@pagopa/ts-commons/lib/reporters";
-import { GenerateNonceDependencies } from "../utils/ioweb/dependency";
 import { Nonce } from "../generated/definitions/models/Nonce";
 import { GenerateNonceResponse } from "../generated/definitions/internal/GenerateNonceResponse";
 import { errorToHttpError } from "../utils/errors";
 import { create } from "../model/nonce";
+import { RedisDependency } from "../utils/redis/dependency";
 
 const generateNonce: () => RTE.ReaderTaskEither<
-  GenerateNonceDependencies,
+  RedisDependency,
   H.HttpError,
   Nonce
 > = () => ({ redisClientTask }) =>
@@ -45,7 +45,7 @@ export const makeGenerateNonce: H.Handler<
   H.HttpRequest,
   | H.HttpResponse<GenerateNonceResponse, 200>
   | H.HttpResponse<H.ProblemJson, H.HttpErrorStatusCode>,
-  GenerateNonceDependencies
+  RedisDependency
 > = H.of((req: H.HttpRequest) =>
   pipe(
     req,
