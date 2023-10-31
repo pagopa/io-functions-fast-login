@@ -467,7 +467,7 @@ describe("Fast Login handler", () => {
 
   it(`GIVEN an valid LolliPoP request 
     WHEN the nonce delete fails because of redis connection error 
-    THEN an intenral error is returned`,async ()=>{
+    THEN an internal error is returned`,async ()=>{
       const anError="anError"
       const req: H.HttpRequest = {
         ...H.request("https://api.test.it/"),
@@ -495,6 +495,42 @@ describe("Fast Login handler", () => {
             body: expect.objectContaining({
               title: `Could not connect to database: [${anError}]`,
               status: 500
+            })
+          })
+        )
+      );
+    })
+
+  it(`GIVEN an valid LolliPoP request 
+    WHEN the nonce delete fails because the key was not found
+    THEN an unauthorized error is returned`,async ()=>{
+      mockRedisDel.mockResolvedValueOnce(0)
+      const req: H.HttpRequest = {
+        ...H.request("https://api.test.it/"),
+        headers: {
+          ...validLollipopHeaders,
+          ...validFastLoginAdditionalHeaders,
+        }
+      };
+      const result = await makeFastLoginHandler({
+        ...httpHandlerInputMocks,
+        input: req,
+        fnLollipopClient: mockedFnLollipopClient,
+        blobService: mockBlobService,
+        redisClientTask: mockRedisClient
+      })();
+      expect(mockValidateSignature).toHaveBeenCalled();
+      expect(mockRedisDel).toHaveBeenCalled();
+      expect(getAssertionMock).not.toHaveBeenCalled();
+      expect(mockUpsertBlobFromObject).not.toHaveBeenCalled();
+      expect(mockUpsertBlobFromObject).not.toHaveBeenCalled();
+      expect(result).toEqual(
+        E.right(
+          expect.objectContaining({
+            statusCode: 401,
+            body: expect.objectContaining({
+              title: `Could not delete nonce: [Unexpected response from redis client: Deleted 0 keys]`,
+              status: 401
             })
           })
         )

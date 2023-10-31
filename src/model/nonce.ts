@@ -71,7 +71,7 @@ export const getDeleteNonce: GetDeleteNonceT = redis_client => nonce =>
     TE.chain(
       TE.fromPredicate(
         reply => reply === 1,
-        _ => new Error(`Unexpected response from redis client: Deleted 0 keys`)
+        _ => new Error("Unexpected response from redis client: Deleted 0 keys")
       )
     ),
     TE.map(_ => true as const)
