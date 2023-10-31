@@ -11,6 +11,7 @@ import { AssertionRef } from "../../generated/definitions/fn-lollipop/AssertionR
 import { JwkPubKeyHashAlgorithm } from "../../types/lollipop";
 import { getCustomVerifyWithEncoding } from "./httpSignature.verifiers";
 import { getAlgoFromAssertionRef } from "./assertion";
+import { CustomHttpUnauthorizedError } from "../errors";
 
 type ValidateHttpSignatureParams = {
   readonly request: H.HttpRequest;
@@ -72,7 +73,9 @@ export const validateHttpSignature = (
       validateHttpSignatureWithEconding("der")(params),
       TE.orElse(() => validateHttpSignatureWithEconding("ieee-p1363")(params))
     ),
-    TE.mapLeft(() => new H.HttpUnauthorizedError("Invalid Lollipop Signature"))
+    TE.mapLeft(
+      () => new CustomHttpUnauthorizedError("Invalid Lollipop Signature")
+    )
   );
 
 /**

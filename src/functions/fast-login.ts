@@ -41,6 +41,7 @@ import { LollipopAuthBearer } from "../generated/definitions/fn-lollipop/Lollipo
 import { validateHttpSignature } from "../utils/lollipop/crypto";
 import { AssertionRef } from "../generated/definitions/fn-lollipop/AssertionRef";
 import { getDeleteNonce, getNonceFromSignatureInput } from "../model/nonce";
+import { CustomHttpUnauthorizedError } from "../utils/errors";
 
 /**
  * Retrieve the corrisponding SAMLResponse from the `io-fn-lollipop` related to a specific Lollipop sign request.
@@ -201,7 +202,7 @@ const deleteNonce: (
   lollipopHeaders: LollipopHeaders
 ) => RTE.ReaderTaskEither<
   FnLollipopClientDependency,
-  H.HttpError | H.HttpUnauthorizedError,
+  H.HttpError,
   true
 > = lollipopHeaders => ({ redisClientTask }) =>
   pipe(
@@ -222,8 +223,8 @@ const deleteNonce: (
         TE.chain(getDeleteNonce(redisClient)),
         TE.mapLeft(
           error =>
-            new H.HttpUnauthorizedError(
-              `Could not delete nonce [${error.message}]`
+            new CustomHttpUnauthorizedError(
+              `Could not delete nonce: [${error.message}]`
             )
         )
       )

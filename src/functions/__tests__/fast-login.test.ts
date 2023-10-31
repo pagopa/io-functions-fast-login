@@ -253,7 +253,7 @@ describe("Fast Login handler", () => {
         statusCode: 401,
         body: {
           status: 401,
-          title: "You must provide a valid API key to access this resource."
+          title: "Invalid Lollipop signature"
         }
       })
     );
@@ -419,7 +419,7 @@ describe("Fast Login handler", () => {
           expect.objectContaining({
             statusCode: 401,
             body: expect.objectContaining({
-              title: "You must provide a valid API key to access this resource.",
+              title: "Could not delete nonce: [Could not retrieve nonce from signature-input.]",
               status: 401
             })
           })
@@ -456,7 +456,7 @@ describe("Fast Login handler", () => {
           expect.objectContaining({
             statusCode: 401,
             body: expect.objectContaining({
-              title: "You must provide a valid API key to access this resource.",
+              title: expect.stringContaining("Error while decoding nonce:"),
               status: 401
             })
           })
