@@ -9,9 +9,9 @@ import * as A from "fp-ts/Array";
 import * as jose from "jose";
 import { AssertionRef } from "../../generated/definitions/fn-lollipop/AssertionRef";
 import { JwkPubKeyHashAlgorithm } from "../../types/lollipop";
+import { CustomHttpUnauthorizedError } from "../errors";
 import { getCustomVerifyWithEncoding } from "./httpSignature.verifiers";
 import { getAlgoFromAssertionRef } from "./assertion";
-import { CustomHttpUnauthorizedError } from "../errors";
 
 type ValidateHttpSignatureParams = {
   readonly request: H.HttpRequest;
