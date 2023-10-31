@@ -16,10 +16,11 @@ import {
 import { LollipopMethodEnum } from "../../generated/definitions/internal/LollipopMethod";
 import { LollipopOriginalURL } from "../../generated/definitions/internal/LollipopOriginalURL";
 import { aFiscalCode } from "./general";
+import { Nonce } from "../../generated/definitions/models/Nonce";
 
 export const anAssertionRef = "sha256-iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU" as AssertionRef;
 
-export const aNonce = "195ace7b-1262-4a70-b520-7fbae5305a26";
+export const aNonce = "195ace7b-1262-4a70-b520-7fbae5305a26" as Nonce;
 export const fastLoginUrl = "https://api-app.io.pagopa.it/api/v1/fast-login" as LollipopOriginalURL;
 export const aLollipopSignature = "sig1=:GPJHMjxsyAB29V271sW6yozbM6gskQ4Jr0HtJzwmiM7Bsm09i5dRhWc0zIDbuWAU/bJmX4FX/CTeWL9Q5ivCTw==:" as LollipopSignature;
 export const aLollipopSignatureInput = `sig1=("x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url");created=1698315748;nonce="${aNonce}";alg="ecdsa-p256-sha256";keyid="iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU"` as LollipopSignatureInput;
