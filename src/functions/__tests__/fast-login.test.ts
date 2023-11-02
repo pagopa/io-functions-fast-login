@@ -400,6 +400,9 @@ describe("Fast Login handler", () => {
       headers: {
         ...validLollipopHeaders,
         ...validFastLoginAdditionalHeaders,
+        // even if we are not including a new signature header,
+        // the validation below is still passing because
+        // the method is mocked above with a jest.spyOn
         ["signature-input"]: `sig1=("x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url");created=1698315748;alg="ecdsa-p256-sha256";keyid="iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU"`
       }
     };
@@ -437,6 +440,9 @@ describe("Fast Login handler", () => {
       headers: {
         ...validLollipopHeaders,
         ...validFastLoginAdditionalHeaders,
+        // even if we are not including a new signature header,
+        // the validation below is still passing because
+        // the method is mocked above with a jest.spyOn
         ["signature-input"]: `sig1=("x-pagopa-lollipop-original-method" "x-pagopa-lollipop-original-url");created=1698315748;nonce="WRONG-NONCE";alg="ecdsa-p256-sha256";keyid="iwBFlFaCWaLnrCckGIyWMJBnfDkEJ-mgxZVzGICmkwU"`
       }
     };
