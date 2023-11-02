@@ -40,8 +40,9 @@ import {
 import { LollipopAuthBearer } from "../generated/definitions/fn-lollipop/LollipopAuthBearer";
 import { validateHttpSignature } from "../utils/lollipop/crypto";
 import { AssertionRef } from "../generated/definitions/fn-lollipop/AssertionRef";
-import { getDeleteNonce, getNonceFromSignatureInput } from "../model/nonce";
+import { getDeleteNonce } from "../model/nonce";
 import { CustomHttpUnauthorizedError, errorToHttpError } from "../utils/errors";
+import { getNonceFromSignatureInput } from "../utils/lollipop/request";
 
 /**
  * Retrieve the corrisponding SAMLResponse from the `io-fn-lollipop` related to a specific Lollipop sign request.
@@ -214,7 +215,7 @@ const deleteNonce: (
       pipe(
         getNonceFromSignatureInput(lollipopHeaders["signature-input"]),
         TE.fromEither,
-        TE.chain(getDeleteNonce(redisClient)),
+        TE.chain(nonce => getDeleteNonce(nonce)(redisClient)),
         TE.mapLeft(
           error =>
             new CustomHttpUnauthorizedError(
