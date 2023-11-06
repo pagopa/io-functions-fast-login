@@ -14,8 +14,10 @@ export const getNonceFromSignatureInput = (
     O.fromNullable,
     // take out only the first group of the match
     O.chainNullableK(matchArray => matchArray.at(1)),
-    O.fold(
-      () => E.left(new Error("Could not retrieve nonce from signature-input.")),
+    E.fromOption(
+      () => new Error("Could not retrieve nonce from signature-input.")
+    ),
+    E.chain(
       flow(
         Nonce.decode,
         E.mapLeft(

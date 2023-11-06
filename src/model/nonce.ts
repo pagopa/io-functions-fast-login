@@ -34,10 +34,11 @@ export const create = (nonce: Nonce) => (
     falsyResponseToErrorAsync(new Error("Error saving the key"))
   );
 
-type GetDeleteNonceT = (
+export const invalidate: (
   nonce: Nonce
-) => (redis_client: redis.RedisClientType) => TE.TaskEither<Error, true>;
-export const getDeleteNonce: GetDeleteNonceT = nonce => redis_client =>
+) => (
+  redis_client: redis.RedisClientType
+) => TE.TaskEither<Error, true> = nonce => redis_client =>
   pipe(
     TE.tryCatch(() => redis_client.del(prefixer(nonce)), E.toError),
     TE.chain(

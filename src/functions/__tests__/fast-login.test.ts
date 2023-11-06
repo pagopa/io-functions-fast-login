@@ -424,7 +424,7 @@ describe("Fast Login handler", () => {
           statusCode: 401,
           body: expect.objectContaining({
             title:
-              "Could not delete nonce: [Could not retrieve nonce from signature-input.]",
+              "Invalid or missing nonce in request: [Could not retrieve nonce from signature-input.]",
             status: 401
           })
         })

@@ -2,7 +2,7 @@ import * as crypto from "crypto";
 import { httpAzureFunction } from "@pagopa/handler-kit-azure-func";
 import * as H from "@pagopa/handler-kit";
 import * as RTE from "fp-ts/ReaderTaskEither";
-import { pipe } from "fp-ts/lib/function";
+import { pipe, flow } from "fp-ts/lib/function";
 import { sequenceS } from "fp-ts/lib/Apply";
 import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
 import { format } from "date-fns";
@@ -40,7 +40,7 @@ import {
 import { LollipopAuthBearer } from "../generated/definitions/fn-lollipop/LollipopAuthBearer";
 import { validateHttpSignature } from "../utils/lollipop/crypto";
 import { AssertionRef } from "../generated/definitions/fn-lollipop/AssertionRef";
-import { getDeleteNonce } from "../model/nonce";
+import { invalidate } from "../model/nonce";
 import { CustomHttpUnauthorizedError, errorToHttpError } from "../utils/errors";
 import { getNonceFromSignatureInput } from "../utils/lollipop/request";
 
@@ -207,20 +207,29 @@ const deleteNonce: (
   true
 > = lollipopHeaders => ({ redisClientTask }) =>
   pipe(
-    TE.Do,
-    TE.bind("redisClient", () =>
-      pipe(redisClientTask, TE.mapLeft(errorToHttpError))
+    TE.fromEither(
+      getNonceFromSignatureInput(lollipopHeaders["signature-input"])
     ),
-    TE.chainW(({ redisClient }) =>
+    TE.mapLeft(
+      error =>
+        new CustomHttpUnauthorizedError(
+          `Invalid or missing nonce in request: [${error.message}]`
+        )
+    ),
+    TE.chain(nonce =>
       pipe(
-        getNonceFromSignatureInput(lollipopHeaders["signature-input"]),
-        TE.fromEither,
-        TE.chain(nonce => getDeleteNonce(nonce)(redisClient)),
-        TE.mapLeft(
-          error =>
-            new CustomHttpUnauthorizedError(
-              `Could not delete nonce: [${error.message}]`
+        redisClientTask,
+        TE.mapLeft(errorToHttpError),
+        TE.chainW(
+          flow(
+            invalidate(nonce),
+            TE.mapLeft(
+              error =>
+                new CustomHttpUnauthorizedError(
+                  `Could not delete nonce: [${error.message}]`
+                )
             )
+          )
         )
       )
     )
