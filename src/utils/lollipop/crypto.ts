@@ -9,6 +9,7 @@ import * as A from "fp-ts/Array";
 import * as jose from "jose";
 import { AssertionRef } from "../../generated/definitions/fn-lollipop/AssertionRef";
 import { JwkPubKeyHashAlgorithm } from "../../types/lollipop";
+import { CustomHttpUnauthorizedError } from "../errors";
 import { getCustomVerifyWithEncoding } from "./httpSignature.verifiers";
 import { getAlgoFromAssertionRef } from "./assertion";
 
@@ -72,7 +73,9 @@ export const validateHttpSignature = (
       validateHttpSignatureWithEconding("der")(params),
       TE.orElse(() => validateHttpSignatureWithEconding("ieee-p1363")(params))
     ),
-    TE.mapLeft(() => new H.HttpUnauthorizedError("Invalid Lollipop Signature"))
+    TE.mapLeft(
+      () => new CustomHttpUnauthorizedError("Invalid Lollipop Signature")
+    )
   );
 
 /**
