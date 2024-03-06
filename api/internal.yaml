@@ -457,7 +457,7 @@ components:
       minLength: 1
     LollipopSignatureInput:
       type: string
-      pattern: ^(((sig[0-9]+)=[^,]*?)(, ?)?)+$
+      pattern: ^(?:sig\d+=[^,]*)(?:,\s*(?:sig\d+=[^,]*))*$
     LollipopSignature:
       type: string
       pattern: ^((sig[0-9]+)=:[A-Za-z0-9+/=]*:(, ?)?)+$
