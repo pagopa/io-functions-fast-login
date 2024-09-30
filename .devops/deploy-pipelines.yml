@@ -123,9 +123,9 @@ stages:
           - task: AzureFunctionApp@1
             inputs:
               azureSubscription: '$(PRODUCTION_AZURE_SUBSCRIPTION)'
-              resourceGroupName: 'io-p-weu-fast-login-rg'
+              resourceGroupName: 'io-p-itn-fast-login-rg-01'
               appType: 'functionApp'
-              appName: 'io-p-weu-fast-login-fn'
+              appName: 'io-p-itn-auth-lv-fn-01'
               package: '$(Build.ArtifactStagingDirectory)/'
               deploymentMethod: 'auto'
               deployToSlotOrASE: true
@@ -144,7 +144,7 @@ stages:
           - checkout: none
           - script: |
               # fails if response status is not 2xx
-              curl -f 'https://io-p-weu-fast-login-fn-staging.azurewebsites.net/$(HEALTHCHECK_PATH)'
+              curl -f 'https://io-p-itn-auth-lv-fn-01-staging.azurewebsites.net/$(HEALTHCHECK_PATH)'
             displayName: 'Healthcheck'
 
   # Promote the staging instance to production
@@ -158,8 +158,8 @@ stages:
           - task: AzureAppServiceManage@0
             inputs:
               azureSubscription: '$(PRODUCTION_AZURE_SUBSCRIPTION)'
-              resourceGroupName: 'io-p-weu-fast-login-rg'
-              webAppName: 'io-p-weu-fast-login-fn'
+              resourceGroupName: 'io-p-itn-fast-login-rg-01'
+              webAppName: 'io-p-itn-auth-lv-fn-01'
               sourceSlot: staging
               swapWithProduction: true
             displayName: Swap with production slot
