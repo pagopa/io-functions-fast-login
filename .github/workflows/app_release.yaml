@@ -14,7 +14,14 @@ on:
           - patch
   push:
     branches:
-      - main
+      - CES-48-migrazione-pipeline-fast-login
+    # paths:
+    #   - "**"
+    #   - "!infra/**"
+    #   - "!.pre-commit-config.yaml"
+    #   - "!.terraform-version"
+    #   - "!CODEOWNERS"
+    #   - "!README.md"
 
 env:
   BRANCH: CES-48-migrazione-pipeline-fast-login
