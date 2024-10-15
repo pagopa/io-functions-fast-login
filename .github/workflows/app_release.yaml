@@ -41,15 +41,10 @@ jobs:
       actions: write
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
+      GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
 
     steps:
-
-      # - name: Git Setup
-      #   run: |
-      #     git config --global user.email "${{ env.GIT_EMAIL }}" && \
-      #       git config --global user.name "${{ env.GIT_USERNAME }}"
-
-      #     git checkout ${{ env.BRANCH }}
 
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         name: Checkout
@@ -66,6 +61,11 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
         working-directory: .
+
+      - name: Git Setup
+        run: |
+          git config user.email "${{ env.GIT_EMAIL }}" && \
+            git config user.name "${{ env.GIT_USERNAME }}"
 
       - name: Bump version and tag
         run: |
