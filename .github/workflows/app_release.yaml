@@ -69,7 +69,7 @@ jobs:
 
       - name: Bump version and tag
         run: |
-          LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)-RELEASE
+          LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
           echo "LATEST_TAG=${LATEST_TAG}" >> $GITHUB_ENV
 
           npm version patch -m "Bump version to %s"
