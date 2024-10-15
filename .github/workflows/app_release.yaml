@@ -80,7 +80,7 @@ jobs:
           HEAD_SHA=$(git rev-parse HEAD)
           TITLE="Release $NEXT_VERSION"
           TAG="v$NEXT_VERSION-RELEASE"
-          LATEST_TAG=v$(git describe --tags `git rev-list --tags --max-count=1`)-RELEASE
+          LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)-RELEASE
 
           echo "TITLE=${TITLE}" >> $GITHUB_ENV
           echo "HEAD_SHA=${HEAD_SHA}" >> $GITHUB_ENV
