@@ -15,7 +15,6 @@ on:
       - "!README.md"
     branches:
       - main
-  push:
 
 jobs:
   code_review:
