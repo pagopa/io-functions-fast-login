@@ -82,10 +82,10 @@ jobs:
           TAG="v$NEXT_VERSION-RELEASE"
           LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
 
-          echo "##vso[task.setvariable variable=title]$TITLE"
-          echo "##vso[task.setvariable variable=sha]$HEAD_SHA"
-          echo "##vso[task.setvariable variable=tag]$TAG"
-          echo "##vso[task.setvariable variable=latest_tag]$LATEST_TAG"
+          echo "TITLE=${TITLE}" >> $GITHUB_ENV
+          echo "HEAD_SHA=${HEAD_SHA}" >> $GITHUB_ENV
+          echo "TAG=${TAG}" >> $GITHUB_ENV
+          echo "LATEST_TAG=${LATEST_TAG}" >> $GITHUB_ENV
 
       - name: Push changes
         run: |
@@ -94,8 +94,8 @@ jobs:
 
       - name: Create Repository Release
         run: |
-          gh release create $tag \
-            --title $title \
-            --target $sha \
+          gh release create $TAG \
+            --title $TITLE \
+            --target $HEAD_SHA \
             --generate-notes \
-            --notes-start-tag $latest_tag
+            --notes-start-tag $LATEST_TAG
