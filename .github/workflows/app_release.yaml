@@ -1,0 +1,84 @@
+name: App Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      sem-ver:
+        required: true
+        description: 'Semver bump'
+        type: choice
+        default: minor
+        options:
+          - major
+          - minor
+          - patch
+  push:
+    branches:
+      - main
+
+env:
+  BRANCH: CES-48-migrazione-pipeline-fast-login
+
+jobs:
+  # prod_release:
+  #   uses: pagopa/dx/.github/workflows/legacy_deploy_pipelines.yaml@main
+  #   name: Code Review
+  #   secrets: inherit
+
+  github_release:
+    name: GitHub Release
+    runs-on: ubuntu-22.04
+    # needs: [prod_release]
+    permissions:
+      contents: write
+      actions: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+
+      # - name: Git Setup
+      #   run: |
+      #     git config --global user.email "${{ env.GIT_EMAIL }}" && \
+      #       git config --global user.name "${{ env.GIT_USERNAME }}"
+
+      #     git checkout ${{ env.BRANCH }}
+
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        name: Checkout
+        with:
+          ref: ${{ env.BRANCH }}
+          fetch-depth: 0
+
+      - name: Bump version and tag
+        run: |
+          npm version ${{ inputs.sem-ver }} -m "Bump version to %s"
+          NEXT_VERSION=$(node -p "require('./package.json').version")
+          RELEASE_TAG="v$NEXT_VERSION-RELEASE"
+          git tag $RELEASE_TAG
+
+      - name: Set release variables
+        run: |
+          NEXT_VERSION=$(node -p "require('./package.json').version")
+          HEAD_SHA=$(git rev-parse HEAD)
+          TITLE="Release $NEXT_VERSION"
+          TAG="v$NEXT_VERSION-RELEASE"
+          LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+
+          echo "##vso[task.setvariable variable=title]$TITLE"
+          echo "##vso[task.setvariable variable=sha]$HEAD_SHA"
+          echo "##vso[task.setvariable variable=tag]$TAG"
+          echo "##vso[task.setvariable variable=latest_tag]$LATEST_TAG"
+
+      - name: Push changes
+        run: |
+          git push origin ${{ env.BRANCH }} && \
+            git push --tags
+
+      - name: Create Repository Release
+        run: |
+          gh release create $tag \
+            --title $title \
+            --target $sha \
+            --generate-notes \
+            --notes-start-tag $latest_tag
