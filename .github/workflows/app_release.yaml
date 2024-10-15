@@ -71,6 +71,8 @@ jobs:
         run: |
           LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
           echo "LATEST_TAG=${LATEST_TAG}" >> $GITHUB_ENV
+          HEAD_SHA=$(git rev-parse HEAD)
+          echo "HEAD_SHA=${HEAD_SHA}" >> $GITHUB_ENV
 
           npm version patch -m "Bump version to %s"
           NEXT_VERSION=$(node -p "require('./package.json').version")
@@ -80,12 +82,11 @@ jobs:
       - name: Set release variables
         run: |
           NEXT_VERSION=$(node -p "require('./package.json').version")
-          HEAD_SHA=$(git rev-parse HEAD)
+
           TITLE="Release $NEXT_VERSION"
           TAG="v$NEXT_VERSION-RELEASE"
 
           echo "TITLE=${TITLE}" >> $GITHUB_ENV
-          echo "HEAD_SHA=${HEAD_SHA}" >> $GITHUB_ENV
           echo "TAG=${TAG}" >> $GITHUB_ENV
 
       - name: Push changes
