@@ -98,5 +98,5 @@ jobs:
           gh release create $TAG \
             --title $TITLE \
             --target $HEAD_SHA \
-            --generate-notes \
-            --notes-start-tag $LATEST_TAG
+            --generate-notes
+            # --notes-start-tag $LATEST_TAG
