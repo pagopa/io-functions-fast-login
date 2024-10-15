@@ -1,4 +1,4 @@
-name: Code Review
+name: App Code Review
 
 on:
   workflow_dispatch:
