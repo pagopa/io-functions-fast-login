@@ -14,28 +14,33 @@ on:
           - patch
   push:
     branches:
-      - CES-48-migrazione-pipeline-fast-login
-    # paths:
-    #   - "**"
-    #   - "!infra/**"
-    #   - "!.pre-commit-config.yaml"
-    #   - "!.terraform-version"
-    #   - "!CODEOWNERS"
-    #   - "!README.md"
+      - main
+    paths:
+      - "**"
+      - "!infra/**"
+      - "!.pre-commit-config.yaml"
+      - "!.terraform-version"
+      - "!CODEOWNERS"
+      - "!README.md"
 
 env:
-  BRANCH: CES-48-migrazione-pipeline-fast-login
+  BRANCH: main
 
 jobs:
-  # prod_release:
-  #   uses: pagopa/dx/.github/workflows/legacy_deploy_pipelines.yaml@main
-  #   name: Code Review
-  #   secrets: inherit
+  prod_release:
+    uses: pagopa/dx/.github/workflows/legacy_deploy_pipelines.yaml@main
+    name: Code Review
+    secrets: inherit
+    with:
+      environment: prod
+      resource_group_name: io-p-itn-fast-login-rg-01
+      app_name: io-p-itn-auth-lv-fn-01
 
   github_release:
     name: GitHub Release
     runs-on: ubuntu-22.04
-    # needs: [prod_release]
+    needs: [prod_release]
+    environment: app-prod-cd
     permissions:
       contents: write
       actions: write
