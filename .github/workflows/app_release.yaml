@@ -1,0 +1,107 @@
+name: App Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      sem-ver:
+        required: true
+        description: 'Semver bump'
+        type: choice
+        default: minor
+        options:
+          - major
+          - minor
+          - patch
+  push:
+    branches:
+      - main
+    paths:
+      - "**"
+      - "!infra/**"
+      - "!.pre-commit-config.yaml"
+      - "!.terraform-version"
+      - "!CODEOWNERS"
+      - "!README.md"
+
+env:
+  BRANCH: main
+
+jobs:
+  prod_release:
+    uses: pagopa/dx/.github/workflows/legacy_deploy_pipelines.yaml@main
+    name: Code Review
+    secrets: inherit
+    with:
+      environment: prod
+      resource_group_name: io-p-itn-fast-login-rg-01
+      app_name: io-p-itn-auth-lv-fn-01
+
+  github_release:
+    name: GitHub Release
+    runs-on: ubuntu-22.04
+    needs: [prod_release]
+    environment: app-prod-cd
+    permissions:
+      contents: write
+      actions: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
+      GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
+
+    steps:
+
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        name: Checkout
+        with:
+          ref: ${{ env.BRANCH }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        with:
+          node-version-file: ".node-version"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --immutable
+        working-directory: .
+
+      - name: Git Setup
+        run: |
+          git config user.email "${{ env.GIT_EMAIL }}" && \
+            git config user.name "${{ env.GIT_USERNAME }}"
+
+      - name: Bump version and tag
+        run: |
+          LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+          echo "LATEST_TAG=${LATEST_TAG}" >> $GITHUB_ENV
+
+          npm version patch -m "Bump version to %s"
+          NEXT_VERSION=$(node -p "require('./package.json').version")
+          RELEASE_TAG="v$NEXT_VERSION-RELEASE"
+          git tag $RELEASE_TAG
+
+      - name: Set release variables
+        run: |
+          NEXT_VERSION=$(node -p "require('./package.json').version")
+          HEAD_SHA=$(git rev-parse HEAD)
+          TITLE="Release $NEXT_VERSION"
+          TAG="v$NEXT_VERSION-RELEASE"
+
+          echo "HEAD_SHA=${HEAD_SHA}" >> $GITHUB_ENV
+          echo "TITLE=${TITLE}" >> $GITHUB_ENV
+          echo "TAG=${TAG}" >> $GITHUB_ENV
+
+      - name: Push changes
+        run: |
+          git push origin ${{ env.BRANCH }} && \
+            git push --tags
+
+      - name: Create Repository Release
+        run: |
+          gh release create "$TAG" \
+            --title "$TITLE" \
+            --target "$HEAD_SHA" \
+            --generate-notes
+            # --notes-start-tag $LATEST_TAG
